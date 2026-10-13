@@ -1,0 +1,17 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+## Assignment 0
+
+Hello Ta!
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(igraph)
+```

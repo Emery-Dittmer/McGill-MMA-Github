@@ -1,0 +1,907 @@
+---
+title: "Group Assignment"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Background
+
+This notebook contains all code and answers to the talent analytics assignment. Specifically we will be tackling the following question:
+
+What are the organizational and social factors associated with the length of patent application prosecution?
+
+
+
+# Data Cleaning and Pre-Processing
+
+In order to analyze the data, we first need to pre-process it in a way that is usable for analysis.
+
+## Loading Data and Basic Packages
+
+### Load packages
+First we need to load the basic packages for the manipulation of data. Other packages will be loaded as needed.
+
+```{r packages}
+
+library(dplyr)
+library(stringr)
+library(arrow)
+library(lubridate)
+library(ggplot2)
+  
+#for first time use
+#install.packages('compareGroups')
+#install.packages('webr')
+#install.packages('prophet')
+#install.packages('survival')
+#install.packages('ggord')
+#install.packages('pastecs')
+
+#archive
+#library(tsibble)
+#library(tidyverse)
+```
+
+### Load data
+
+Now we load in the data. The app_gender_rate data is the primary data we will use for now. This data contains the transaction data for all applications, the examiner who processed them and their associated traits such as gender and ethnicity.
+
+```{r loading}
+App_data=read_parquet('apps_gender_rate.parquet')
+total_rows=nrow(App_data)
+```
+
+## Clean Data
+Now that we have the data, we can clean and pre-process it. We will remove all the fields with NAs so that we can get meaningful insights. 
+```{r cleaning the data}
+# Remove Nas from status date
+App_data <- App_data %>% 
+  filter(!is.na(appl_status_date))
+
+# Remove Nas from gender
+App_data <- App_data %>% 
+  filter(!is.na(gender))
+
+
+# Remove Nas from race
+App_data <- App_data %>% 
+  filter(!is.na(race))
+
+nrow(App_data)/total_rows*100
+  
+# Clean Date format
+#get the date format cleaned
+App_data$Date_time=as.Date(App_data$appl_status_date, format="%d%b%Y")
+
+#get the date format for the filing date cleaned
+App_data$filing_date=as.Date(App_data$filing_date, format="%d%b%Y")
+
+
+
+```
+
+## Pre-process
+Next we need to maks a few transformations to make sure that the data is in the format we need.First we need to filter the status update to a decison since we are trying to determine the amount of time between application date and a descision. Next, we will need to remove all data before 2017 decision previous examples have shown that this data is full of outliers and other incomplte data. Next we will have to convert some data fields to a nyew format.  Last, we will need to add a field that calculates the amount of time between each application and each desscion. 
+
+What type of applications are there?
+
+```{r Quick Check on disposal types}
+unique(App_data$disposal_type)
+```
+
+We will remove all "PEND" type applications.
+Then make a new field to compute time.
+
+```{r pre-process data 1}
+
+#create new data fame with all manipulations. App_Data held as clean data
+T_Data=App_data
+
+
+Aside <- T_Data %>% 
+  filter(Date_time>= as.Date("2017-01-01"))
+
+#Remove all the data we will not need based on application status
+exclude_list=c("PEND")
+T_Data <- T_Data %>%
+  filter(!disposal_type %in% exclude_list)
+#Data Remain
+nrow(T_Data)/nrow(App_data)*100
+```
+
+Now we can remove the data from after 2017 since it has high levels of outliers and bad data.
+
+```{r date filters}
+#remove all values after 2017
+T_Data <- T_Data %>% 
+  filter(Date_time<= as.Date("2017-01-01"))
+
+#Data Remain
+nrow(T_Data)/nrow(App_data)*100
+
+```
+We therefore have 79.8% of our data remaining. This is an acceptable amount for out analysis.
+
+Now we can remove some un-needed datacolumns. These are saved so we can merge these later if we need to
+
+```{r data cleaning}
+#list of data to keep)
+
+keep=c("filing_date","disposal_type","tc","gender","race","tenure_days","Date_time","examiner_id") #examiner_art_unit not kept as produces too man variables for packages
+T_Data = subset(T_Data, select = keep)
+
+#=The other gender has been giving issues will be maintained in future in original dataset
+T_Data_OG=T_Data
+T_Data <- T_Data %>% 
+  filter(race != "other")
+
+
+```
+
+Pen-ultimately we will change the data type on a few columns for analysis ease
+
+```{r data type conversion}
+
+#Setting Gender as factor
+T_Data$gender = as.factor(T_Data$gender)
+
+#Setting ethnicity as factor
+T_Data$race = as.factor(T_Data$race)
+
+#Setting ethnicity as factor
+T_Data$disposal_type = as.factor(T_Data$disposal_type)
+
+#setting the technology center as a factor
+T_Data$tc = as.factor(T_Data$tc)
+
+# #Art unit as a factor in case
+# T_Data$examiner_art_unit = as.factor(T_Data$examiner_art_unit)
+
+T_Data_ggally=T_Data[,1:7]
+T_Data_ggally=T_Data[,c(1:5,7)]
+
+```
+
+## Feature Engineering
+
+Now the last step is to add a column that computes the time between application date and decision date.
+This column is called the application time and is the time in days between application filing and 
+
+```{r feature engineering}
+#this is the amount of time in days that the applications take
+T_Data$Application_time <- T_Data$Date_time - T_Data$filing_date
+T_Data$Application_time <- as.numeric(T_Data$Application_time)
+
+#adding the year of filling and the year of approval to see time's effect
+T_Data$filing_year= as.numeric(year(T_Data$filing_date))
+T_Data$descision_year=as.numeric(year(T_Data$Date_time))
+
+#we will assume that tenure days is roughly equal to the tenure days since the last patent descision
+Temp_data <- T_Data %>% 
+  group_by(examiner_id) %>% 
+  summarise(
+    start_data = min(Date_time)
+    )
+
+T_Data <- merge(T_Data, Temp_data, by = 'examiner_id',all=T)
+T_Data$Approx_Tenue_Days=as.numeric(T_Data$Date_time-T_Data$start_data)
+
+#get median
+med_app_time=median(T_Data$Application_time)
+
+#T_data=T_Data[,2:12]
+```
+
+
+garbage collection (optional)
+
+```{r garbage}
+rm(App_data,exclude_list,keep,Temp_data)
+```
+
+# Descriptive Analysis
+
+## Correlation Data Investigation
+
+Now that the data is in a clean and useable format let's examine the data more closely. First lets look at the summary stats for all the data
+
+```{r summary stats}
+# 
+library(vtable)
+# print(sumtable(T_Data))
+T_Temp=distinct(T_Data_OG, examiner_id, .keep_all = TRUE)
+Temp_data <- T_Temp %>% 
+  group_by(gender,race) %>% 
+  summarise(
+    count = n()
+    )
+Temp_data
+```
+```{r summary 1}
+summary(Aside)
+```
+
+```{r summary 2}
+summary(T_Data)
+```
+
+```{r summary 3}
+library(pastecs)
+stat.desc(T_Data)
+```
+
+
+
+
+let's make a quick pie chart to vislize the data
+```{r pie chart}
+PD = T_Data %>%
+  group_by(gender, race) %>%
+  summarise(n = n())
+
+library(webr)
+PieDonut(PD, aes(gender,race, count=n), title = "Patent Examiners by Race & Gender",r0 = 0.45, r1 = 0.9, addDonutLabel= TRUE )
+```
+
+Now lets look at the correlation plots
+```{r g gally}
+library(GGally)
+d=ggpairs(T_Data_ggally)
+d
+```
+
+```{r garbage 2}
+rm(T_Data_ggally,Temp_data)
+```
+
+```{r pair plots }
+require(corrplot)
+num_cols <- unlist(lapply(T_Data, is.numeric))       
+quanvars <- T_Data[ , num_cols] 
+drop <- c("tenure_days","examiner_id")
+quanvars = quanvars[,!(names(quanvars) %in% drop)]
+corr_matrix <- cor(quanvars)
+corrplot(corr_matrix)
+```
+## Distribution of Data
+
+```{r histogram distribtion }
+hists=ggplot(T_Data, aes(x=Application_time))+geom_histogram(bins = 30)+
+  geom_vline(aes(xintercept = med_app_time), color = "red")+
+    ggtitle("Histogram of Application Length in Days. Median in Red")
+hists
+```
+
+lets examine the distribtuon of the number of aplications by the number of days it usually takes for each tc to complete
+
+
+```{r histogram distribtion ethnicity}
+hists=ggplot(T_Data, aes(x=Application_time))+geom_histogram(bins = 30)+
+  facet_grid(T_Data$tc)+
+  geom_vline(aes(xintercept = med_app_time), color = "red")+
+  ggtitle("Histogram of Application Length in Days Brokenout by TC. Median in Red")
+hists
+```
+Lets look at it by gender and tc now
+```{r histogram distribtion ethnicity 1}
+hists=ggplot(T_Data, aes(x=Application_time))+geom_histogram(bins = 30)+
+  facet_grid(T_Data$tc~T_Data$gender)+
+  geom_vline(aes(xintercept = med_app_time), color = "red")+
+  ggtitle("Histogram of Application Length in Days Brokenout by TC. Median in Red")
+hists
+```
+
+Now let's take a look at the spead of application years to see if there are more applications in one year than another
+```{r histogram distribtion ethnicity 2-1}
+hists=ggplot(T_Data, aes(x=filing_year))+
+  geom_histogram(bins = 30)+
+  ggtitle("Histogram of Application filing year.")
+hists
+```
+
+
+
+```{r histogram distribtion ethnicity 2-2}
+hists=ggplot(T_Data, aes(x=filing_year))+
+  geom_histogram(bins = 30)+
+  facet_grid(T_Data$tc)+
+  ggtitle("Histogram of Application filing year.")
+hists
+```
+
+Similarly let's look at the distribution of approval years
+```{r histogram distribtion ethnicity 3}
+hists=ggplot(T_Data, aes(x=descision_year))+geom_histogram(bins = 30)+facet_grid(T_Data$tc)
+hists
+```
+So is the time to process documents increasing, decreasing or potentially neither?
+```{r histogram distribtion ethnicity 4}
+ggplot()+
+  geom_point(data=T_Data, aes(filing_date,Application_time), size = 2,alpha=.005)+
+  facet_grid(T_Data$tc~T_Data$disposal_type)
+#T_Data$tc,
+```
+
+
+```{r histogram distribtion gender ethnicity 5}
+ggplot()+
+  geom_histogram(data=T_Data, aes(Application_time))+
+  facet_grid(T_Data$gender~T_Data$race)+
+  xlab("Length of Application")+
+  ylab("Count of Application Length")+
+  ggtitle("Histogram of Application Length in Days Brokenout by TC. Median in Red")
+  
+#T_Data$tc,
+```
+
+ Now lets look at this as a percentage of the totals. Looking at the counts is not very meaningful
+```{r density plotting}
+ggplot()+
+  geom_density(data=T_Data, aes(Application_time))+
+  facet_grid(T_Data$gender~T_Data$race)
+#T_Data$tc,
+```
+Let's compare side by side
+
+
+```{r Violin plots}
+library(tidyverse)
+library(ggpubr)
+
+T_Data$race_gender=paste(T_Data$race,T_Data$gender)
+T_Data$race_gender=as.factor(T_Data$race_gender)
+
+T_Data %>% 
+  mutate(factors = fct_reorder(race_gender,Application_time )) %>% 
+  ggplot(aes(factors, Application_time)) +
+  geom_hline(aes(yintercept = med_app_time), color = "red") +
+  geom_violin() +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+
+```
+```{r box plots2}
+ggboxplot(T_Data, x= 'race', y='Application_time',color='race',xlab=FALSE,ylab="Application Time (in Days)")+
+  rotate_x_text(45)
+```
+
+```{r box plots3}
+ggboxplot(T_Data, x= 'gender', y='Application_time',color='gender',xlab=FALSE,ylab="Application Time (in Days)")+
+  rotate_x_text(45)
+```
+
+
+```{r box plots}
+ggboxplot(T_Data, x= 'race_gender', y='Application_time',color='race_gender',xlab=FALSE,ylab="Application Time (in Days)")+
+  rotate_x_text(45)
+```
+
+
+
+Based on the graphs we can see a similar pattern for application time, where all tcs have a steadliy decreasing application wait time. However, this is likely a right censoring problem as the applications that are taking longer are not being counted and therefore are filtered out. These applications do not have a status of issued or no. It is interesting to see there is no real discernable pattern between any tcs on the amount of time ofr a patent applcation.
+
+```{r garbage collection}
+drop <- c("race_gender")
+T_Data = T_Data[,!(names(T_Data) %in% drop)]
+```
+
+## Average Comparisons
+
+Let's compare the averages between groups. First we will get some averages
+```{r compare averages 1 }
+aggregate(T_Data$Application_time, list(T_Data$gender), FUN=mean) 
+aggregate(T_Data$Application_time, list(T_Data$race), FUN=mean) 
+aggregate(T_Data$Application_time, list(T_Data$gender,T_Data$race), FUN=mean) 
+sd(T_Data$Application_time)
+```
+Next, we will run some statistical testing on them
+```{r compare averages 2 }
+#similarlity between men and women
+t.test(Application_time ~ gender, data = T_Data, var.equal = FALSE)
+#similarlity between all means
+t=aov(Application_time ~ race, data = T_Data)
+summary(t)
+
+t=aov(Application_time ~ race+gender, data = T_Data)
+summary(t)
+
+```
+
+
+## PCA Analaysis
+
+```{r  pca analysis}
+library(ggfortify)
+pca=prcomp(quanvars, scale=TRUE)
+autoplot(pca, data = quanvars, loadings = TRUE, loadings.label = TRUE )
+```
+# Preictive Analysis
+
+We will now attempt to use various models to predict the application time based on the features of the data
+
+## Prophet Prediction on the future
+Let's use the prophet package to predict the future of the filing number of applications
+
+```{r prophet prediction 1}
+
+library(prophet)
+
+Pred_Data <- T_Data %>% 
+  group_by(Date_time) %>% 
+  summarise(
+    ds = as.POSIXct(min(Date_time)), # I have repeatedly attempted to change this assumption but have been unable to
+    y=mean(Application_time),
+    )
+#Check for duplicates. If true then there are no duplicates
+length(unique(Pred_Data$ds)) == nrow(Pred_Data)
+
+m<-prophet(Pred_Data)
+future <- make_future_dataframe(m, periods = 365)
+tail(future)
+
+```
+Now we can make some predictions
+
+```{r prophet prediction 2}
+forecast <- predict(m, future)
+tail(forecast[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+```
+
+```{r prophet prediction 3}
+plot(m, forecast)
+```
+We can look at the key feautres effecting the model
+```{r prophet prediction 4}
+prophet_plot_components(m, forecast)
+```
+and then visualize the predictions!
+
+```{r prophet prediction plot}
+# Plot the prophet forecast with the test data points
+ggplot(forecast, aes(ds, yhat)) +
+  geom_ribbon(data = forecast,aes(ymin=yhat_lower,ymax=yhat_upper), alpha=0.1, color = "grey71")+
+  geom_point(data = Pred_Data, aes(ds, y, color = "train data"), size = 2,alpha=0.2) +
+  geom_line(aes(color = "prophet forecast",alpha=0.001)) +
+  scale_color_manual(values = c("blue", "red", "black"), labels = c("Forecast", "Test data"))+
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of length of application time")
+```
+Let's try breaking these out a bit into weekdays.
+```{r prophet prediction plot2}
+Pred_Data$DOW=wday(Pred_Data$ds,week_start = 1, label=TRUE)
+
+# Plot the prophet forecast with the test data points
+ggplot(forecast, aes(ds, yhat)) +
+  geom_point(data = Pred_Data, aes(ds, y, color = DOW), size = 1.5,alpha=0.4) +
+  scale_color_brewer(palette = "Set1")+
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of length of application time")
+```
+This is shows that as time goes on the average patent application length is longer if the status update is on a Sunday or Thursday but farily consistent otherwise
+
+Let's try breaking these out a bit, first by gender since there seems to be 3 different trends
+```{r prophet prediction plot3}
+
+Pred_Data_M <- T_Data %>% 
+  group_by(Date_time,gender) %>% 
+  summarise(
+    ds = as.POSIXct(min(Date_time)),
+    y=mean(Application_time)
+    )%>% 
+  filter(gender=="male")
+
+Pred_Data_F <- T_Data %>% 
+  group_by(Date_time,gender) %>% 
+  summarise(
+    ds = as.POSIXct(min(Date_time)),
+    y=mean(Application_time)
+    )%>% 
+  filter(gender=="female")
+
+m_M<-prophet(Pred_Data_M)
+future <- make_future_dataframe(m_M, periods = 720)
+forecast_M <- predict(m_M, future)
+
+m_F<-prophet(Pred_Data_F)
+future <- make_future_dataframe(m_F, periods = 720)
+forecast_F <- predict(m_F, future)
+
+```
+
+```{r prophet prediction plot 5}
+ggplot(forecast, aes(ds, yhat)) +
+  geom_ribbon(data = forecast_F,aes(ymin=yhat_lower,ymax=yhat_upper), alpha=0.4, color = "lightpink")+
+  geom_ribbon(data = forecast_M,aes(ymin=yhat_lower,ymax=yhat_upper), alpha=0.1, color = "lightblue")+
+  geom_point(data = Pred_Data_F, aes(ds, y, color = "Female"), size = 2,alpha=.2) +
+  geom_point(data = Pred_Data_M, aes(ds, y, color = "Male"), size = 2,alpha=.2) +
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of Male vs. Femal Average Application Days")
+```
+
+
+## Tree model for predictive 
+```{r tree model}
+library(tree)
+library(rpart)
+library(rpart.plot)
+
+
+myoverfittedtree=rpart(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data, control=rpart.control(cp=0.0001))
+#this will generate a plot of the decision tree
+rpart.plot(myoverfittedtree)
+
+```
+
+Let's fit the tree using the bast control paramter
+```{r plot the cp control paramter}
+plotcp(myoverfittedtree)
+#This returns the optimal cp value
+opt_cp=myoverfittedtree$cptable[which.min(myoverfittedtree$cptable[,"xerror"]),"CP"]
+```
+
+We can plot an optimal tree based on the lowest cv, However this becomes in comprehnisble. Therefore we will switch to the elbow method.
+
+```{r tree 2}
+opt_cp=0.01
+optimal_tree=rpart(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data,control=rpart.control(cp=opt_cp))
+
+rpart.plot(optimal_tree)
+```
+
+Lets look specifically at the people traits like gender and ethnicity. We will use
+```{r tree 3}
+opt_cp=0.00001
+optimal_tree=rpart(Application_time~gender+race,data = T_Data,control=rpart.control(cp=opt_cp))
+
+rpart.plot(optimal_tree)
+```
+
+While his may look meaningful, the cp is set extremely high (0.00001). Therefore the decision tree is extremely sensitive. A random forest model might contain more meaningful data but at this level the ethnicity and gender effects on application times are minimal.
+
+
+
+## Survival finctions
+
+Survival data are time-to-event data that consist of a distinct start time and end time. These might be helpful.
+
+```{r survival 1}
+library(survival)
+library(lubridate)
+library(ggsurvfit)
+library(gtsummary)
+library(tidycmprsk)
+#library(condsurv)
+
+T_Data <- T_Data %>% 
+  mutate(
+    status = recode(disposal_type, `ABN` = 0, `ISS` = 1)
+  )
+
+
+survfit(Surv(Application_time) ~ 1, data = T_Data) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()+
+  add_risktable()
+```
+
+Looking at the gender effect
+```{r survival 2}
+
+survfit(Surv(Application_time) ~ gender, data = T_Data) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+looking at the ethnicity effects
+
+```{r survival 3}
+
+survfit(Surv(Application_time) ~ race, data = T_Data) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+
+```{r survival 4}
+survfit(Surv(Application_time, status) ~ gender+race, data = T_Data) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+## Mixture models
+
+## Linear Discrimanat Analysis
+
+We should be able to look at how a specific factor like gender affects the application rate. This method is based on prior probabilities and Bayesian statistics. Since we have some indication that the data is normally distributed we can use this method to estimate the effect of various factors and use that.
+
+
+```{r LDA 1 }
+library(MASS)
+library(klaR)
+
+mylda=lda(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data)
+mylda[4]
+
+```
+ 
+```{r LDA fit 2}
+
+mylda=lda(Application_time~gender+race,data = T_Data)
+mylda[4]
+
+```
+
+ 
+```{r LDA fit 3}
+drop <- c("Application_time","descision_year","filing_year","Date_time","tenure_days","tc","filing_date","disposal_type")
+pred_df = T_Data[0:1000,!(names(T_Data) %in% drop)]
+library(caret)
+predictions=as.numeric(predict(mylda,newdata=pred_df)$class)
+Application_time=T_Data$Application_time[0:1000]
+test=data.frame(predictions,Application_time)
+test$abs_diff<-abs(test$predictions-test$Application_time)
+test$sq_error<-test$abs_diff**2
+MAE=mean(test$abs_diff)
+MSE=mean(test$sq_error)
+MAE
+MSE
+```
+
+```{r LDA partimat functionality }
+ 
+#partimat(race~Application_time+filing_date, method="lda",data=T_Data)
+```
+
+
+
+# Appendix
+
+## Descriptive Stats
+```{r desc}
+library(compareGroups)
+res<-compareGroups(gender~Application_time, data=T_Data)
+res
+res<-compareGroups(race~Application_time, data=T_Data)
+res
+```
+
+## predictions
+
+We will make predictions based on productivity.
+
+```{r prophet prediction-update 1}
+
+library(prophet)
+
+Pred_Data <- T_Data %>% 
+  group_by(Date_time) %>% 
+  summarise(
+    ds = as.POSIXct(min(Date_time)), # I have repeatedly attempted to change this assumption but have been unable to
+    y=n(),
+    )
+#Check for duplicates. If true then there are no duplicates
+length(unique(Pred_Data$ds)) == nrow(Pred_Data)
+
+m<-prophet(Pred_Data)
+future <- make_future_dataframe(m, periods = 365)
+tail(future)
+
+```
+Now we can make some predictions
+
+```{r prophet prediction-update 2}
+forecast <- predict(m, future)
+tail(forecast[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+```
+
+```{r prophet prediction-update 3}
+plot(m, forecast)
+```
+We can look at the key feautres effecting the model
+```{r prophet prediction-update 4}
+prophet_plot_components(m, forecast)
+```
+and then visualize the predictions!
+
+```{r prophet prediction-update plot}
+# Plot the prophet forecast with the test data points
+ggplot(forecast, aes(ds, yhat)) +
+  geom_ribbon(data = forecast,aes(ymin=yhat_lower,ymax=yhat_upper), alpha=0.1, color = "grey71")+
+  geom_point(data = Pred_Data, aes(ds, y, color = "train data"), size = 2,alpha=0.2) +
+  geom_line(aes(color = "prophet forecast",alpha=0.001)) +
+  scale_color_manual(values = c("blue", "red", "black"), labels = c("Forecast", "Test data"))+
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of length of application time")
+```
+Let's try breaking these out a bit, since there seems to be 3 different trends
+```{r prophet prediction-update plot2}
+Pred_Data$DOW=wday(Pred_Data$ds,week_start = 1, label=TRUE)
+
+# Plot the prophet forecast with the test data points
+ggplot(forecast, aes(ds, yhat)) +
+  geom_point(data = Pred_Data, aes(ds, y, color = DOW), size = 1,alpha=0.4) +
+  scale_color_brewer(palette = "Set1")+
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of length of application time")
+```
+
+Let's try breaking these out a bit, since there seems to be 3 different trends
+```{r prophet prediction-update plot3}
+Pred_Data_low=App_data <- Pred_Data %>% 
+  filter(y<365)
+Pred_Data_med=App_data <- Pred_Data %>% 
+  filter(y>365 & y<800)
+
+Pred_Data_high=App_data <- Pred_Data %>% 
+  filter(y>800)
+
+# Plot the prophet forecast with the test data points
+ggplot(forecast, aes(ds, yhat)) +
+  geom_point(data = Pred_Data_low, aes(ds, y, color = "low"), size = 2,alpha=0.2) +
+  geom_point(data = Pred_Data_med, aes(ds, y, color = "med"), size = 2,alpha=0.2) +
+  geom_point(data = Pred_Data_high, aes(ds, y, color = "high"), size = 2,alpha=0.2) +
+  scale_color_manual(values = c("blue", "red", "black"), labels = c("high", "low","med"))+
+  xlab("Date") +
+  ylab("y") +
+  ggtitle("Forecast of application status updates")
+```
+
+
+
+
+## Tree model Summary 
+
+```{r optimal tree summary}
+summary(optimal_tree)
+```
+
+## Survival
+```{r survival appendix 1}
+library(survival)
+library(lubridate)
+library(ggsurvfit)
+library(gtsummary)
+library(tidycmprsk)
+
+T_Data_OG<- T_Data_OG %>% 
+  mutate(
+    status = recode(disposal_type, `ABN` = 0, `ISS` = 1)
+  )
+
+T_Data_OG$Application_time <- T_Data_OG$Date_time - T_Data_OG$filing_date
+T_Data_OG$Application_time <- as.numeric(T_Data_OG$Application_time)
+
+survfit(Surv(Application_time) ~ 1, data = T_Data_OG) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()+
+  add_risktable()
+```
+Looking at the gender effect
+```{r survival appendix 2}
+survfit(Surv(Application_time) ~ gender, data = T_Data_OG) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+looking at the ethnicity effects
+
+```{r survival appendix 3}
+
+survfit(Surv(Application_time) ~ race, data = T_Data_OG) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+
+```{r survival appendix 4}
+survfit(Surv(Application_time, status) ~ gender+race, data = T_Data_OG) %>% 
+  ggsurvfit() +
+  labs(
+    x = "Days",
+    y = "Overall survival probability"
+  ) + 
+  add_confidence_interval()
+
+```
+
+
+## LDA Summary
+
+```{r lda summary full}
+#mylda
+```
+
+## Survival 
+
+## Unused Code kept for reference.
+
+
+```{r unused Code}
+# # Personal level data from correction
+# person_level_data= read.csv('person_level_data.csv')
+# # Data of art unit changes
+# aus=read.csv("examiner_aus.csv")
+# # Get id crosswalk table
+# ids=read.csv("examiner_ids.csv")
+# Get parquet data that details the transactions for each examiner, their gender and most likely ethnicity
+
+
+# Code not needed
+# #get the quarter number
+# App_data$Quarter_Year=as.character(yearquarter(App_data$Date_time))
+# #get the week number
+# App_data$Week_Year=as.character(yearweek(App_data$Date_time))
+
+
+# library(dcldata)
+
+
+
+```
+
+## Clustering
+Lastly, we are going to look at clustering to group the applications together. This may reveal some hidden characteristics and trains not seen before.
+
+```{r clustering analysis}
+# km.2=kmeans(T_Data[,c(8,6)], 2) #2 clusters
+# km.3=kmeans(T_Data[,c(8,6)], 3) #3 clusters
+# km.5=kmeans(T_Data[,c(8,6)], 5)#5 clusters
+```
+# 
+```{r 2 clusters}
+# T_Data$cluster=as.factor(km.2$cluster)
+# ggplot(T_Data,aes(y=Application_time, x=tenure_days))+
+#   geom_point(aes(colour=cluster))
+```
+# 
+```{r 3 clusters}
+# T_Data$cluster=as.factor(km.3$cluster)
+# ggplot(T_Data,aes(y=Application_time, x=tenure_days))+
+#   geom_point(aes(colour=cluster))
+```
+# 
+```{r 5 clusters}
+# T_Data$cluster=as.factor(km.5$cluster)
+# ggplot(T_Data,aes(y=Application_time, x=tenure_days))+
+#   geom_point(aes(colour=cluster))
+```

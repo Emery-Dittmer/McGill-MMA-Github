@@ -1,0 +1,342 @@
+---
+title: "Group Assignment"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Background
+
+This notebook contains all code and answers to the talent analytics assignment. Specifically we will be tackling the following question:
+
+What are the organizational and social factors associated with the length of patent application prosecution?
+
+
+
+# Data Cleaning and Pre-Processing
+
+In order to analyze the data, we first need to pre-process it in a way that is usable for analysis.
+
+## Loading Data and Basic Packages
+
+### Load packages
+First we need to load the basic packages for the manipulation of data. Other packages will be loaded as needed.
+```{r packages}
+#library(tidyverse)
+library(dplyr)
+library(stringr)
+library(arrow)
+library(lubridate)
+#library(tsibble)
+library(ggplot2)
+```
+
+### Load data
+
+Now we load in the data. The app_gender_rate data is the primary data we will use for now. This data contains the transaction data for all applications, the examiner who processed them and their associated traits such as gender and ethnicity.
+
+```{r loading}
+
+App_data=read_parquet('apps_gender_rate.parquet')
+```
+
+## Clean Data
+Now that we have the data, we can clean and pre-process it. We will remove all the fields with NAs so that we can get meaningful insights. 
+```{r cleaning the data}
+# Remove Nas from status date
+App_data <- App_data %>% 
+  filter(!is.na(appl_status_date))
+
+# Remove Nas from gender
+App_data <- App_data %>% 
+  filter(!is.na(gender))
+  
+# Clean Date format
+#get the date format cleaned
+App_data$Date_time=as.Date(App_data$appl_status_date, format="%d%b%Y")
+
+#get the date format for the filing date cleaned
+App_data$filing_date=as.Date(App_data$filing_date, format="%d%b%Y")
+
+
+
+```
+
+## Pre-process
+Next we need to maks a few transformations to make sure that the data is in the format we need.First we need to filter the status update to a decison since we are trying to determine the amount of time between application date and a descision. Next, we will need to remove all data before 2017 decision previous examples have shown that this data is full of outliers and other incomplte data. Next we will have to convert some data fields to a nyew format.  Last, we will need to add a field that calculates the amount of time between each application and each desscion. 
+
+What type of applications are there?
+
+```{r Quick Check on disposal types}
+unique(App_data$disposal_type)
+```
+
+We will remove all "PEND" type applications.
+Then make a new field to compute time.
+
+```{r pre-process data 1}
+
+#create new data fame with all manipulations. App_Data held as clean data
+T_Data=App_data
+
+#Remove all the data we will not need based on application status
+exclude_list=c("PEND")
+T_Data <- T_Data %>%
+  filter(!disposal_type %in% exclude_list)
+
+```
+
+Now we can remove the data from before 2017 since it has high levels of outliers and bad data.
+
+```{r date filters}
+#remove all values before 2017
+T_Data <- T_Data %>% 
+  filter(Date_time<= as.Date("2017-01-01"))
+
+#Data Remain
+nrow(T_Data)/nrow(App_data)*100
+
+```
+We therefore have 79.8% of our data remaining. This is an acceptable amount for out analysis.
+
+Now we can remove some un-needed datacolumns. These are saved so we can merge these later if we need to
+
+```{r data cleaning}
+#list of data to keep)
+keep=c("filing_date","disposal_type","tc","gender","race","tenure_days","Date_time") #examiner_art_unit not kept as produces too man variables for packages
+T_Data = subset(T_Data, select = keep)
+
+```
+
+Pen-ultimately we will change the data type on a few columns for analysis ease
+
+```{r data type conversion}
+
+#Setting Gender as factor
+T_Data$gender = as.factor(T_Data$gender)
+
+#Setting ethnicity as factor
+T_Data$race = as.factor(T_Data$race)
+
+#Setting ethnicity as factor
+T_Data$disposal_type = as.factor(T_Data$disposal_type)
+
+# #Art unit as a factor in case
+# T_Data$examiner_art_unit = as.factor(T_Data$examiner_art_unit)
+
+#setting the technology center as a factor
+T_Data$tc = as.factor(T_Data$tc)
+
+```
+
+## Feature Engineering
+
+Now the last step is to add a column that computes the time between application date and decision date.
+This column is called the application time and is the time in days between application filing and 
+
+```{r feature engineering}
+#this is the amount of time in days that the applications take
+T_Data$Application_time <- T_Data$Date_time - T_Data$filing_date
+T_Data$Application_time <- as.numeric(T_Data$Application_time)
+
+#adding the year of filling and the year of approval to see time's effect
+T_Data$filing_year= as.numeric(year(T_Data$filing_date))
+T_Data$descision_year=as.numeric(year(T_Data$Date_time))
+
+```
+
+
+garbage collection (optional)
+
+```{r garbage}
+rm(App_data,exclude_list,keep)
+```
+
+# Descriptive Analysis
+
+## Correlation Data Investigation
+
+Now that the data is in a clean and useable format let's examine the data more closely. First lets look at the summary stats for all the data
+
+```{r summary stats}
+# 
+# library(vtable)
+# print(sumtable(T_Data))
+
+```
+
+
+
+Now lets look at the correlation plots
+```{r g gally}
+library(ggplot2)
+library(GGally)
+d=ggpairs(T_Data)
+d
+```
+
+
+```{r pair plots }
+require(corrplot)
+num_cols <- unlist(lapply(T_Data, is.numeric))       
+quanvars <- T_Data[ , num_cols]           
+corr_matrix <- cor(quanvars)
+corrplot(corr_matrix)
+```
+## Distribution of Data
+
+lets examine the distribtuon of the number of aplications by the number of days it usually takes for each tc to complete.
+
+```{r histogram distribtion ethnicity}
+hists=ggplot(T_Data, aes(x=Application_time))+geom_histogram(bins = 30)+facet_grid(T_Data$tc)
+hists
+```
+
+Now let's take a look at the spead of application years
+```{r histogram distribtion ethnicity 2}
+hists=ggplot(T_Data, aes(x=filing_year))+geom_histogram(bins = 30)+facet_grid(T_Data$tc)
+hists
+```
+
+Similarly let's look at the distribution of approval years
+```{r histogram distribtion ethnicity 3}
+hists=ggplot(T_Data, aes(x=descision_year))+geom_histogram(bins = 30)+facet_grid(T_Data$tc)
+hists
+```
+So is the time to process documents increasing, decreasing or potentially neither?
+```{r histogram distribtion ethnicity 4}
+ggplot()+
+  geom_point(data=T_Data, aes(filing_date,Application_time), size = 2,alpha=.005)+
+  facet_grid(T_Data$tc~T_Data$disposal_type)
+#T_Data$tc,
+```
+```{r histogram distribtion gender ethnicity 5}
+ggplot()+
+  geom_histogram(data=T_Data, aes(Application_time))+
+  facet_grid(T_Data$gender~T_Data$race)
+#T_Data$tc,
+```
+
+ Now lets look at this as a percentage of the totals. Looking at the counts is not very meaningful
+```{r density plotting}
+ggplot()+
+  geom_density(data=T_Data, aes(Application_time))+
+  facet_grid(T_Data$gender~T_Data$race)
+#T_Data$tc,
+```
+Let's compare side by side
+
+
+```{r Violin plots}
+library(tidyverse)
+library(dcldata)
+
+T_Data$race_gender=paste(T_Data$race,T_Data$gender)
+T_Data$race_gender=as.factor(T_Data$race_gender)
+
+T_Data %>% 
+  mutate(factors = fct_reorder(race_gender,Application_time )) %>% 
+  ggplot(aes(factors, Application_time)) +
+  geom_hline(aes(yintercept = median(Application_time)), color = "red") +
+  geom_violin() +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0))
+```
+
+
+Based on the graphs we can see a similar pattern for application time, where all tcs have a steadliy decreasing application wait time. However, this is likely a right censoring problem as the applications that are taking longer are not being counted and therefore are filtered out. These applications do not have a status of issued or no. It is interesting to see there is no real discernable pattern between any tcs on the amount of time ofr a patent applcation.
+
+## PCA Analaysis
+
+```{r  pca analysis}
+library(ggfortify)
+pca=prcomp(quanvars, scale=TRUE)
+autoplot(pca, data = quanvars, loadings = TRUE, loadings.label = TRUE )
+```
+# Preictive Analysis
+
+We will now attempt to use various models to predict the application time based on the features of the data
+
+## Tree model for predictive 
+```{r tree model}
+library(tree)
+library(rpart)
+library(rpart.plot)
+
+
+myoverfittedtree=rpart(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data, control=rpart.control(cp=0.0001))
+#this will generate a plot of the decision tree
+rpart.plot(myoverfittedtree)
+
+```
+
+Let's fit the tree using the bast control paramter
+```{r plot the cp control paramter}
+plotcp(myoverfittedtree)
+#This returns the optimal cp value
+opt_cp=myoverfittedtree$cptable[which.min(myoverfittedtree$cptable[,"xerror"]),"CP"]
+```
+
+We can plot an optimal tree based on the lowest cv, However this becomes in comprehnisble. Therefore we will swithc to the elbow method.
+
+```{r tree 2}
+opt_cp=0.01
+optimal_tree=rpart(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data,control=rpart.control(cp=opt_cp))
+
+rpart.plot(optimal_tree)
+```
+
+## Linear Discrimanat Analysis
+
+We should be able to look at how a specific factor like gender affects the application rate. This method is based on prior probabilities and Bayeian statistics. Since we have some indication that the data is normally distributed we can use this method to estimate the effect of various factors and use that.
+
+
+```{r LDA 1 }
+library(MASS)
+library(klaR)
+
+mylda=lda(Application_time~disposal_type+tc+gender+race+tenure_days+descision_year+filing_year,data = T_Data)
+mylda
+
+```
+
+```{r LDA partimat functionality }
+ 
+# partimat(race~Application_time, method="lda",image.colors=c("light
+# grey", "light green", "white"),data+T_Data)
+```
+
+## Clustering
+Lastly, we are going to look at clustering to group the applications together. This may reveal some hidden characteristics and trains not seen before.
+
+# Appendix
+
+## Tree model Summary 
+
+```{r optimal tree summary}
+summary(optimal_tree)
+```
+
+
+## Unused Code kept for reference.
+
+
+```{r unused Code}
+# # Personal level data from correction
+# person_level_data= read.csv('person_level_data.csv')
+# # Data of art unit changes
+# aus=read.csv("examiner_aus.csv")
+# # Get id crosswalk table
+# ids=read.csv("examiner_ids.csv")
+# Get parquet data that details the transactions for each examiner, their gender and most likely ethnicity
+
+
+# Code not needed
+# #get the quarter number
+# App_data$Quarter_Year=as.character(yearquarter(App_data$Date_time))
+# #get the week number
+# App_data$Week_Year=as.character(yearweek(App_data$Date_time))
+
+
+
+```
