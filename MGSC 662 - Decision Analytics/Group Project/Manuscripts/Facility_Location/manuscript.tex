@@ -1,0 +1,112 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[margin=2cm]{geometry}
+\geometry{letterpaper}
+\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+%SetFonts
+
+
+\title{MGSC-662-075 - Decision Analytics}
+\author{}
+%\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%
+%%% DESCRIPTION
+%%%%%%%%%%%%%%%%
+\section{Description}
+\subsection{Intro}
+The pursuit of net zero emissions by 2050 is a continuous challenge.1 A major contributor to CO2 emissions is electricity generation, specifically coal and natural gas. Over the last 3 decades, wind turbines have appeared as a leading source of clean, and renewable electricity generation. Innovations in the size, efficiency, and materials of wind turbines have fueled the growth of wind farms across the world. However, wind turbines have a dirty little secret: what to do with old blades. While the massive carbon fiber and fiberglass blades are impressive in size; they have a finite useful life. At the end of that useful life, they must be properly discarded to avoid contaminating the ground and creating waste. 
+
+Wind turbine blades progressively degrade from dust, bird strikes, and air particulates. At the end of their 20-year lifespan, they need replacing. Once replaced the old blades are discarded. The discarded blades are often left on farmland leading to soil toxicity and environmental destruction.2,3 Soon, proposed legislation and green initiatives will force companies to process their used blades.4,5 Special facilities can recycle old blades but require capital expenditure and specialized equipment. Therefore, these facilities' location and processing ability must be carefully selected. 
+
+This optimization project aims to find how many of these recycling facilities will be needed and where to build them on the Canadian territory.  
+
+\subsubsection*{Assumption}
+We assume wind farms have some yearly waste. Yearly waste is calculated based on age and size of the wind farms. Every 20 years wind turbines need to be replaced, we assume 20\% per year are replaced.  
+
+Average Yearly Deliveries are based on truck capacity and the size of the farm. Each farm has a specific number of turbines, each turbine has 3 blades and weights approximately 36 tons (REFERENCE). Each truck has a capacity of 62.5 tons (REFERENCE). We assume each turbine has a useful life of 20 years (REFERENCE). Thus we multiply number of turbines by number of blades and by weight of blades divided by capacity divided useful life and round up to get the number of deliveries per year (ADD FORMULA).
+
+
+%%%%%%%%%%%%%%%%
+%%% SETS
+%%%%%%%%%%%%%%%%
+\section*{Sets}
+$w$ - wind farm \\
+$t$ - facility type \\
+$f$ - facility count $ \in \{1,2...,10 \} $ \\ 
+%$y$ - year $ \in \{1, 2, ..., 50 \} $ 
+
+
+%%%%%%%%%%%%%%%%
+%%% DATA PARAMETERS
+%%%%%%%%%%%%%%%%
+\section*{Data Requirements}
+$wx_{w}$ - longitude of wind farm $w$ \\
+$wy_{w}$ - latitude of wind farm $w$ \\
+$wd_{w}$ - average yearly deliverables rounded up from wind farm $w$ \\ 
+$ww_{w}$ - average yearly waste delivery per truck from wind farm $w$ \\ 
+$dc$ - delivery cost per truck per mile \\ 
+$co_{t}$ - building cost of facility of type $t$ \\
+$ca_{t}$ - capacity of facility of type $t$ \\
+
+
+%%%%%%%%%%%%%%%%
+%%% Decision Variables
+%%%%%%%%%%%%%%%%
+\section*{Decision Variables} 
+$fb_{ft}$ - binary variable indicating whether facility number $f$ of type $t$ should be built \\
+$fx_{ft}$ - continuous variable indicating longitude of facility number $f$ of type $t$ \\
+$fy_{ft}$ - continuous variable indicating latitude of facility number $f$ of type $t$ 
+
+$dist\_x_{wft}$ - continous variable indicating longitude distance between wind farm $w$, facility $f$ of type $t$ \\ 
+$dist\_y_{wft}$ - continous variable indicating latitude distance between wind farm $w$, facility $f$ of type  $t$ \\
+$dist_{wft}$ - continous variable indicating manhattan distance between wind farm $w$, facility $f$ of type $t$ \\
+$dw_{wft}$ - continuous variable indicating how many deliveries to make from $w$ to $f,t$ \\
+%$lw_{wy}$ - continuous variable indicating how much waste is left in wind field $w$ in year $y$ \\
+
+
+%%%%%%%%%%%%%%%%
+%%% Constraints
+%%%%%%%%%%%%%%%%
+\section*{Constraints}
+
+%\subsubsection*{Flow Constraint}
+%$$ lw_{wy} = wa_{wy} - \sum_{ft} dw_{wfty} \quad \forall w, y = 1 $$
+%$$ lw_{wy} = lw_{w,y-1} + wa_{wy} - \sum_{ft} dw_{wfty} \quad \forall w, y \in \{ 2,...Y \} $$
+
+\subsubsection*{Demand}
+$$ \sum_{t,f} dw_{wft} = wd_{w} \quad \forall w $$
+
+\subsubsection*{Capacity}
+$$ \sum_{w} dw_{wft} * ww_{w} \le ca_{t} * fb_{ft} \quad \forall f,t $$
+
+%\subsubsection*{Capacity \& Availability Constraint}
+%$$ \sum_{w} dw_{wfty} \le ca_{t} * fb_{ft} \quad \forall fty $$
+
+\subsubsection*{Distance Constraint}
+$$ dist\_x_{wft} \ge wx_{w} - fx_{ft} \quad \forall wft $$
+$$ dist\_x_{wft} \ge -( wx_{w} - fx_{ft}) \quad \forall wft $$
+$$ dist\_y_{wft} \ge wy_{w} - fy_{ft} \quad \forall wft $$
+$$ dist\_y_{wft} \ge -(wy_{w} - fy_{ft}) \quad \forall wft $$
+$$ dist_{wft} = dist\_x_{wft} + dist\_y_{wft} \quad \forall wft $$ 
+
+
+%%%%%%%%%%%%%%%%
+%%% Objective Function
+%%%%%%%%%%%%%%%%
+\section*{Objective Function}
+\begin{align*}
+min 	\quad 	& \sum_{wtf} (dist_{wft} * dw_{wft} * dc ) + \\
+        			& \sum_{ft} (fb_{ft} * co_{t})
+\end{align*}
+
+
+
+\end{document}  
