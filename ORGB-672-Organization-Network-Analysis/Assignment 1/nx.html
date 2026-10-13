@@ -1,0 +1,265 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 600px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "Environics Analytics", "label": "Environics Analytics", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Daniel Heuman", "label": "Daniel Heuman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sarah Greene", "label": "Sarah Greene", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Susan Oliver", "label": "Susan Oliver", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Canadian Tire Corporation", "label": "Canadian Tire Corporation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Scott Dowding", "label": "Scott Dowding", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jamil Khouri", "label": "Jamil Khouri", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ahmad Dhanani", "label": "Ahmad Dhanani", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Swithin Aby", "label": "Swithin Aby", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kevin Ha", "label": "Kevin Ha", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TELUS", "label": "TELUS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Taju Punnoose", "label": "Taju Punnoose", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Melissa Palumbo", "label": "Melissa Palumbo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Metrolinx", "label": "Metrolinx", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Michal Bem", "label": "Michal Bem", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Catalina Parada", "label": "Catalina Parada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Manulife", "label": "Manulife", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ramzi L. Kaiache, MBA, M.ENG", "label": "Ramzi L. Kaiache, MBA, M.ENG", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ana Haider, CPA", "label": "Ana Haider, CPA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Maria Katalina Perez", "label": "Maria Katalina Perez", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "IBM", "label": "IBM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Manoviraj Singh", "label": "Manoviraj Singh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Annie Lu", "label": "Annie Lu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Stephanie Duguay", "label": "Stephanie Duguay", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Air Canada", "label": "Air Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lucio Bustillo", "label": "Lucio Bustillo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Caroline Dietrich", "label": "Caroline Dietrich", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gr\u00e9goire Maillard", "label": "Gr\u00e9goire Maillard", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Allianz Trade", "label": "Allianz Trade", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Robert L. Prattico", "label": "Robert L. Prattico", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Boqun Shu", "label": "Boqun Shu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "L\u0027Or\u00e9al", "label": "L\u0027Or\u00e9al", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tarek Cheaito", "label": "Tarek Cheaito", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Utkarsh Nagpal", "label": "Utkarsh Nagpal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Shanshan Lao", "label": "Shanshan Lao", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sangwoo Park", "label": "Sangwoo Park", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "SNC-Lavalin", "label": "SNC-Lavalin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Heidi Klotz", "label": "Heidi Klotz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Evgeny Mukaseev", "label": "Evgeny Mukaseev", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "McGill University - Desautels Faculty of Management", "label": "McGill University - Desautels Faculty of Management", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Elaine Pelletier ", "label": "Elaine Pelletier ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monika Brozyna", "label": "Monika Brozyna", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Junru Wang", "label": "Junru Wang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Michael Murphy", "label": "Michael Murphy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Xiaoyu (Riley) Zhu, FRM", "label": "Xiaoyu (Riley) Zhu, FRM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Abhilasha Yadav", "label": "Abhilasha Yadav", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Elisabeth Cyr", "label": "Elisabeth Cyr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Shoeb Hosain", "label": "Shoeb Hosain", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Xinyi Hu", "label": "Xinyi Hu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hong Fei Jin", "label": "Hong Fei Jin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Google", "label": "Google", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Calypso Petit", "label": "Calypso Petit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "JL Mar\u00e9chaux", "label": "JL Mar\u00e9chaux", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christopher Dittmer", "label": "Christopher Dittmer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alex Eldemir", "label": "Alex Eldemir", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CN", "label": "CN", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Akash Rajain", "label": "Akash Rajain", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Steven Liang", "label": "Steven Liang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Allianz Trade in North America", "label": "Allianz Trade in North America", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Priyanka Jahul", "label": "Priyanka Jahul", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Raman Vakil", "label": "Raman Vakil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alicia Chen", "label": "Alicia Chen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "BRP", "label": "BRP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chongho Pyo", "label": "Chongho Pyo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ben-Isaac Meiga", "label": "Ben-Isaac Meiga", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nilanjana Raghu", "label": "Nilanjana Raghu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mohamad Dalati", "label": "Mohamad Dalati", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KPI Digital Solutions", "label": "KPI Digital Solutions", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Divya  Jain", "label": "Divya  Jain", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Benny Cohen", "label": "Benny Cohen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "John Nikolopoulos, MBA, M.Eng", "label": "John Nikolopoulos, MBA, M.Eng", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Oscar Montemayor", "label": "Oscar Montemayor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mengyuan (Dreama) Wang", "label": "Mengyuan (Dreama) Wang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nishi Nishi", "label": "Nishi Nishi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rohana Habib", "label": "Rohana Habib", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "TD", "label": "TD", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Julie  Chanzy", "label": "Julie  Chanzy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Amr Maraqa", "label": "Amr Maraqa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Haoying Xu", "label": "Haoying Xu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "BDC", "label": "BDC", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Heidi Al Wakeel", "label": "Heidi Al Wakeel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kristen Chen", "label": "Kristen Chen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mathilda (Zixuan) Zhang", "label": "Mathilda (Zixuan) Zhang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "label": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Himanshu Mayank", "label": "Himanshu Mayank", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ruhi Mahendra", "label": "Ruhi Mahendra", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "PwC", "label": "PwC", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jason Stanley", "label": "Jason Stanley", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tomas Gordon Minnes", "label": "Tomas Gordon Minnes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "AmJad Mohamed", "label": "AmJad Mohamed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brett Brezden, CPA", "label": "Brett Brezden, CPA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kieran MacLeod, MSc", "label": "Kieran MacLeod, MSc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Phil Bazinet", "label": "Phil Bazinet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chelsea Knuth", "label": "Chelsea Knuth", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\u00c9tienne Perron, CPA auditeur", "label": "\u00c9tienne Perron, CPA auditeur", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Atul Arora, CPA, CA", "label": "Atul Arora, CPA, CA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Scarlett Sheng, CPA", "label": "Scarlett Sheng, CPA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mohammed Jaradat", "label": "Mohammed Jaradat", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Marine Dutrisac Pineau, MAcc", "label": "Marine Dutrisac Pineau, MAcc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christine Ferris, CPA, CA, CIA", "label": "Christine Ferris, CPA, CA, CIA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Owen Berry", "label": "Owen Berry", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brandon Siu", "label": "Brandon Siu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Clarissa Lie", "label": "Clarissa Lie", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sydney Gemin", "label": "Sydney Gemin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "McGill University", "label": "McGill University", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Avinash Singh Sidhu", "label": "Avinash Singh Sidhu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Joy Bennett", "label": "Joy Bennett", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Phil Cimento", "label": "Phil Cimento", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deloitte", "label": "Deloitte", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Robert Curtis", "label": "Robert Curtis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mariana Tataryn", "label": "Mariana Tataryn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alicia Chan, CSM", "label": "Alicia Chan, CSM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "\ud83d\udca1Jonathan Zhu", "label": "\ud83d\udca1Jonathan Zhu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rachel Wills, CPA", "label": "Rachel Wills, CPA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Laurence Cobo", "label": "Laurence Cobo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pratt \u0026 Whitney Canada", "label": "Pratt \u0026 Whitney Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Emma Soukiassian", "label": "Emma Soukiassian", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jiaying Yao", "label": "Jiaying Yao", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ying-Fang (Ylfa) Liang", "label": "Ying-Fang (Ylfa) Liang", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Darin Zlatarev", "label": "Darin Zlatarev", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mudit Aggarwal", "label": "Mudit Aggarwal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CAE", "label": "CAE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ximena Rodr\u00edguez Miranda", "label": "Ximena Rodr\u00edguez Miranda", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Vibhu Bhardwaj", "label": "Vibhu Bhardwaj", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "PwC Canada", "label": "PwC Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Zarin Tasnim", "label": "Zarin Tasnim", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Marilia Araujo, PMP", "label": "Marilia Araujo, PMP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lawrence Lee", "label": "Lawrence Lee", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chimbo Mutuma II", "label": "Chimbo Mutuma II", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lian Yan", "label": "Lian Yan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sachin Ruparelia", "label": "Sachin Ruparelia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Steve Marcotte", "label": "Steve Marcotte", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Isabelle Roberge, CPA, CISA", "label": "Isabelle Roberge, CPA, CISA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Paolina de Zuttis, CPA, CIA", "label": "Paolina de Zuttis, CPA, CIA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Basel Abou Laban", "label": "Basel Abou Laban", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Martin J Ramonet", "label": "Martin J Ramonet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ahmad Darwiche", "label": "Ahmad Darwiche", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jonathan Koay, CPA, CAPM", "label": "Jonathan Koay, CPA, CAPM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tim McCormick", "label": "Tim McCormick", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deloitte Canada", "label": "Deloitte Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jason Schwieg", "label": "Jason Schwieg", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tene Knibbs, CPA, CMA", "label": "Tene Knibbs, CPA, CMA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "KPMG Canada", "label": "KPMG Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ng Hasanaj", "label": "Ng Hasanaj", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "label": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arlo Dempsey", "label": "Arlo Dempsey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Accenture", "label": "Accenture", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Elica Efremova", "label": "Elica Efremova", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Eve Alezraa", "label": "Eve Alezraa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RBC", "label": "RBC", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ibironke AyinOluwa", "label": "Ibironke AyinOluwa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Emma Harman", "label": "Emma Harman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Douglas McEwen", "label": "Douglas McEwen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Danial Sonik, CSM, PMP.c", "label": "Danial Sonik, CSM, PMP.c", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mehenaz Choudhry", "label": "Mehenaz Choudhry", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arvind Ananthanarayanan", "label": "Arvind Ananthanarayanan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Muskan Seth", "label": "Muskan Seth", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Obafunto AyinOluwa, MMIE, CSPO", "label": "Obafunto AyinOluwa, MMIE, CSPO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Amanda Spilker", "label": "Amanda Spilker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sian Rankin", "label": "Sian Rankin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ruva, Andrea-Nicole Chimbumu", "label": "Ruva, Andrea-Nicole Chimbumu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Melissa Rose", "label": "Melissa Rose", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark Hamill", "label": "Mark Hamill", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tricia Johnson", "label": "Tricia Johnson", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Emily Kovacs", "label": "Emily Kovacs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deanna Mills", "label": "Deanna Mills", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "George Wamala", "label": "George Wamala", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Zohra Dewji", "label": "Zohra Dewji", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bradley Henwood", "label": "Bradley Henwood", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Andrea Young", "label": "Andrea Young", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bryanna Neuwald", "label": "Bryanna Neuwald", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Husam Al Dakhil, PFP\u00ae", "label": "Husam Al Dakhil, PFP\u00ae", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mourad Abdelmonem", "label": "Mourad Abdelmonem", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Keren Yu", "label": "Keren Yu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alison Gibbins", "label": "Alison Gibbins", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mike Ronchka", "label": "Mike Ronchka", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Emily Wright", "label": "Emily Wright", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kiara Ventulieri", "label": "Kiara Ventulieri", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Neil Kapoor", "label": "Neil Kapoor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Breanna Ryan", "label": "Breanna Ryan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nicola Christie", "label": "Nicola Christie", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Frederick Hood", "label": "Frederick Hood", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Melody Zhao", "label": "Melody Zhao", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Theodora Giovannelli", "label": "Theodora Giovannelli", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christopher Cole", "label": "Christopher Cole", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ifeoma Udo", "label": "Ifeoma Udo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Heidi Wildeman", "label": "Heidi Wildeman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Thomas Golka", "label": "Thomas Golka", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rehana Ciriani", "label": "Rehana Ciriani", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Karen Walker", "label": "Karen Walker", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ruba Marar, MSc", "label": "Ruba Marar, MSc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Priya Patel, PMP", "label": "Priya Patel, PMP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Elliot Barry", "label": "Elliot Barry", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gabrielle Davis", "label": "Gabrielle Davis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Natacha Lemay-Reaume", "label": "Natacha Lemay-Reaume", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "label": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brenda Sun", "label": "Brenda Sun", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Adib Hossain, CPA, MAcc", "label": "Adib Hossain, CPA, MAcc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Iridian Spectral Technologies", "label": "Iridian Spectral Technologies", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark Donahue", "label": "Mark Donahue", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monica Coyne", "label": "Monica Coyne", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jason Palidwar", "label": "Jason Palidwar", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Robert Woods", "label": "Robert Woods", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Helen Slegr, M.A.Sc., P.Eng.", "label": "Helen Slegr, M.A.Sc., P.Eng.", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RBC Capital Markets", "label": "RBC Capital Markets", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Amrit Sandhu", "label": "Amrit Sandhu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rachel Chui", "label": "Rachel Chui", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Adele Berrizbeitia", "label": "Adele Berrizbeitia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jaea Zuo", "label": "Jaea Zuo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sana Saeed", "label": "Sana Saeed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mia Miscevic", "label": "Mia Miscevic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Reem Araia", "label": "Reem Araia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Carleton University", "label": "Carleton University", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Melissa Robertson, CPA", "label": "Melissa Robertson, CPA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hamid Moradi", "label": "Hamid Moradi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "label": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sue Hutton", "label": "Sue Hutton", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark Belanger", "label": "Mark Belanger", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "RBC Direct Investing", "label": "RBC Direct Investing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mervyn Adams", "label": "Mervyn Adams", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hania Aymen", "label": "Hania Aymen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "CBRE", "label": "CBRE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lauren King", "label": "Lauren King", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Korey Sheppard-Greene", "label": "Korey Sheppard-Greene", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bell", "label": "Bell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Parag Dey", "label": "Parag Dey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alexandra Lee", "label": "Alexandra Lee", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Fahad Alam Khan", "label": "Fahad Alam Khan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Philips", "label": "Philips", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Joanne Pe\u00f1a", "label": "Joanne Pe\u00f1a", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brian Butler", "label": "Brian Butler", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chris Balugay", "label": "Chris Balugay", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Juan Tosto", "label": "Juan Tosto", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Teymour Seif-El-Nasr", "label": "Teymour Seif-El-Nasr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Fullscript", "label": "Fullscript", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jill Andrews", "label": "Jill Andrews", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jamie Burns", "label": "Jamie Burns", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Amanda Cummings", "label": "Amanda Cummings", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Anheuser-Busch InBev", "label": "Anheuser-Busch InBev", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Devin Hastie", "label": "Devin Hastie", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "John Shipp (He/Him)", "label": "John Shipp (He/Him)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Self-Employed", "label": "Self-Employed", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Laetitia Duler", "label": "Laetitia Duler", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Florence Jaffry Orsini", "label": "Florence Jaffry Orsini", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "label": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Anton Ritzu", "label": "Anton Ritzu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Guillaume Lorget", "label": "Guillaume Lorget", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "William Desmole", "label": "William Desmole", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "Environics Analytics", "to": "Daniel Heuman", "width": 1}, {"from": "Environics Analytics", "to": "Sarah Greene", "width": 1}, {"from": "Environics Analytics", "to": "Susan Oliver", "width": 1}, {"from": "Canadian Tire Corporation", "to": "Scott Dowding", "width": 1}, {"from": "Canadian Tire Corporation", "to": "Jamil Khouri", "width": 1}, {"from": "Canadian Tire Corporation", "to": "Ahmad Dhanani", "width": 1}, {"from": "Canadian Tire Corporation", "to": "Swithin Aby", "width": 1}, {"from": "Canadian Tire Corporation", "to": "Kevin Ha", "width": 1}, {"from": "TELUS", "to": "Taju Punnoose", "width": 1}, {"from": "TELUS", "to": "Melissa Palumbo", "width": 1}, {"from": "Metrolinx", "to": "Michal Bem", "width": 1}, {"from": "Metrolinx", "to": "Catalina Parada", "width": 1}, {"from": "Manulife", "to": "Ramzi L. Kaiache, MBA, M.ENG", "width": 1}, {"from": "Manulife", "to": "Ana Haider, CPA", "width": 1}, {"from": "Manulife", "to": "Maria Katalina Perez", "width": 1}, {"from": "IBM", "to": "Manoviraj Singh", "width": 1}, {"from": "IBM", "to": "Annie Lu", "width": 1}, {"from": "IBM", "to": "Stephanie Duguay", "width": 1}, {"from": "Air Canada", "to": "Lucio Bustillo", "width": 1}, {"from": "Air Canada", "to": "Caroline Dietrich", "width": 1}, {"from": "Air Canada", "to": "Gr\u00e9goire Maillard", "width": 1}, {"from": "Allianz Trade", "to": "Robert L. Prattico", "width": 1}, {"from": "Allianz Trade", "to": "Boqun Shu", "width": 1}, {"from": "L\u0027Or\u00e9al", "to": "Tarek Cheaito", "width": 1}, {"from": "L\u0027Or\u00e9al", "to": "Utkarsh Nagpal", "width": 1}, {"from": "L\u0027Or\u00e9al", "to": "Shanshan Lao", "width": 1}, {"from": "L\u0027Or\u00e9al", "to": "Sangwoo Park", "width": 1}, {"from": "SNC-Lavalin", "to": "Heidi Klotz", "width": 1}, {"from": "SNC-Lavalin", "to": "Evgeny Mukaseev", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Elaine Pelletier ", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Monika Brozyna", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Junru Wang", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Michael Murphy", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Xiaoyu (Riley) Zhu, FRM", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Abhilasha Yadav", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Elisabeth Cyr", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Shoeb Hosain", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Xinyi Hu", "width": 1}, {"from": "McGill University - Desautels Faculty of Management", "to": "Hong Fei Jin", "width": 1}, {"from": "Google", "to": "Calypso Petit", "width": 1}, {"from": "Google", "to": "JL Mar\u00e9chaux", "width": 1}, {"from": "Google", "to": "Christopher Dittmer", "width": 1}, {"from": "Google", "to": "Alex Eldemir", "width": 1}, {"from": "CN", "to": "Akash Rajain", "width": 1}, {"from": "CN", "to": "Steven Liang", "width": 1}, {"from": "Allianz Trade in North America", "to": "Priyanka Jahul", "width": 1}, {"from": "Allianz Trade in North America", "to": "Raman Vakil", "width": 1}, {"from": "Allianz Trade in North America", "to": "Alicia Chen", "width": 1}, {"from": "BRP", "to": "Chongho Pyo", "width": 1}, {"from": "BRP", "to": "Ben-Isaac Meiga", "width": 1}, {"from": "BRP", "to": "Nilanjana Raghu", "width": 1}, {"from": "BRP", "to": "Mohamad Dalati", "width": 1}, {"from": "KPI Digital Solutions", "to": "Divya  Jain", "width": 1}, {"from": "KPI Digital Solutions", "to": "Benny Cohen", "width": 1}, {"from": "KPI Digital Solutions", "to": "John Nikolopoulos, MBA, M.Eng", "width": 1}, {"from": "KPI Digital Solutions", "to": "Oscar Montemayor", "width": 1}, {"from": "KPI Digital Solutions", "to": "Mengyuan (Dreama) Wang", "width": 1}, {"from": "KPI Digital Solutions", "to": "Nishi Nishi", "width": 1}, {"from": "KPI Digital Solutions", "to": "Rohana Habib", "width": 1}, {"from": "TD", "to": "Julie  Chanzy", "width": 1}, {"from": "TD", "to": "Amr Maraqa", "width": 1}, {"from": "TD", "to": "Haoying Xu", "width": 1}, {"from": "BDC", "to": "Heidi Al Wakeel", "width": 1}, {"from": "BDC", "to": "Kristen Chen", "width": 1}, {"from": "BDC", "to": "Mathilda (Zixuan) Zhang", "width": 1}, {"from": "BDC", "to": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "width": 1}, {"from": "BDC", "to": "Himanshu Mayank", "width": 1}, {"from": "BDC", "to": "Ruhi Mahendra", "width": 1}, {"from": "PwC", "to": "Jason Stanley", "width": 1}, {"from": "PwC", "to": "Tomas Gordon Minnes", "width": 1}, {"from": "PwC", "to": "AmJad Mohamed", "width": 1}, {"from": "PwC", "to": "Brett Brezden, CPA", "width": 1}, {"from": "PwC", "to": "Kieran MacLeod, MSc", "width": 1}, {"from": "PwC", "to": "Phil Bazinet", "width": 1}, {"from": "PwC", "to": "Chelsea Knuth", "width": 1}, {"from": "PwC", "to": "\u00c9tienne Perron, CPA auditeur", "width": 1}, {"from": "PwC", "to": "Atul Arora, CPA, CA", "width": 1}, {"from": "PwC", "to": "Scarlett Sheng, CPA", "width": 1}, {"from": "PwC", "to": "Mohammed Jaradat", "width": 1}, {"from": "PwC", "to": "Marine Dutrisac Pineau, MAcc", "width": 1}, {"from": "PwC", "to": "Christine Ferris, CPA, CA, CIA", "width": 1}, {"from": "PwC", "to": "Owen Berry", "width": 1}, {"from": "PwC", "to": "Brandon Siu", "width": 1}, {"from": "PwC", "to": "Clarissa Lie", "width": 1}, {"from": "PwC", "to": "Sydney Gemin", "width": 1}, {"from": "McGill University", "to": "Avinash Singh Sidhu", "width": 1}, {"from": "McGill University", "to": "Joy Bennett", "width": 1}, {"from": "McGill University", "to": "Phil Cimento", "width": 1}, {"from": "Deloitte", "to": "Robert Curtis", "width": 1}, {"from": "Deloitte", "to": "Mariana Tataryn", "width": 1}, {"from": "Deloitte", "to": "Alicia Chan, CSM", "width": 1}, {"from": "Deloitte", "to": "\ud83d\udca1Jonathan Zhu", "width": 1}, {"from": "Deloitte", "to": "Rachel Wills, CPA", "width": 1}, {"from": "Deloitte", "to": "Laurence Cobo", "width": 1}, {"from": "Pratt \u0026 Whitney Canada", "to": "Emma Soukiassian", "width": 1}, {"from": "Pratt \u0026 Whitney Canada", "to": "Jiaying Yao", "width": 1}, {"from": "Pratt \u0026 Whitney Canada", "to": "Ying-Fang (Ylfa) Liang", "width": 1}, {"from": "Pratt \u0026 Whitney Canada", "to": "Darin Zlatarev", "width": 1}, {"from": "Pratt \u0026 Whitney Canada", "to": "Mudit Aggarwal", "width": 1}, {"from": "CAE", "to": "Ximena Rodr\u00edguez Miranda", "width": 1}, {"from": "CAE", "to": "Vibhu Bhardwaj", "width": 1}, {"from": "PwC Canada", "to": "Zarin Tasnim", "width": 1}, {"from": "PwC Canada", "to": "Marilia Araujo, PMP", "width": 1}, {"from": "PwC Canada", "to": "Lawrence Lee", "width": 1}, {"from": "PwC Canada", "to": "Chimbo Mutuma II", "width": 1}, {"from": "PwC Canada", "to": "Lian Yan", "width": 1}, {"from": "PwC Canada", "to": "Sachin Ruparelia", "width": 1}, {"from": "PwC Canada", "to": "Steve Marcotte", "width": 1}, {"from": "PwC Canada", "to": "Isabelle Roberge, CPA, CISA", "width": 1}, {"from": "PwC Canada", "to": "Paolina de Zuttis, CPA, CIA", "width": 1}, {"from": "PwC Canada", "to": "Basel Abou Laban", "width": 1}, {"from": "PwC Canada", "to": "Martin J Ramonet", "width": 1}, {"from": "PwC Canada", "to": "Ahmad Darwiche", "width": 1}, {"from": "PwC Canada", "to": "Jonathan Koay, CPA, CAPM", "width": 1}, {"from": "PwC Canada", "to": "Tim McCormick", "width": 1}, {"from": "Deloitte Canada", "to": "Jason Schwieg", "width": 1}, {"from": "Deloitte Canada", "to": "Tene Knibbs, CPA, CMA", "width": 1}, {"from": "KPMG Canada", "to": "Ng Hasanaj", "width": 1}, {"from": "KPMG Canada", "to": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "width": 1}, {"from": "KPMG Canada", "to": "Arlo Dempsey", "width": 1}, {"from": "Accenture", "to": "Elica Efremova", "width": 1}, {"from": "Accenture", "to": "Eve Alezraa", "width": 1}, {"from": "RBC", "to": "Ibironke AyinOluwa", "width": 1}, {"from": "RBC", "to": "Emma Harman", "width": 1}, {"from": "RBC", "to": "Douglas McEwen", "width": 1}, {"from": "RBC", "to": "Danial Sonik, CSM, PMP.c", "width": 1}, {"from": "RBC", "to": "Mehenaz Choudhry", "width": 1}, {"from": "RBC", "to": "Arvind Ananthanarayanan", "width": 1}, {"from": "RBC", "to": "Muskan Seth", "width": 1}, {"from": "RBC", "to": "Obafunto AyinOluwa, MMIE, CSPO", "width": 1}, {"from": "RBC", "to": "Amanda Spilker", "width": 1}, {"from": "RBC", "to": "Sian Rankin", "width": 1}, {"from": "RBC", "to": "Ruva, Andrea-Nicole Chimbumu", "width": 1}, {"from": "RBC", "to": "Melissa Rose", "width": 1}, {"from": "RBC", "to": "Mark Hamill", "width": 1}, {"from": "RBC", "to": "Tricia Johnson", "width": 1}, {"from": "RBC", "to": "Emily Kovacs", "width": 1}, {"from": "RBC", "to": "Deanna Mills", "width": 1}, {"from": "RBC", "to": "George Wamala", "width": 1}, {"from": "RBC", "to": "Zohra Dewji", "width": 1}, {"from": "RBC", "to": "Bradley Henwood", "width": 1}, {"from": "RBC", "to": "Andrea Young", "width": 1}, {"from": "RBC", "to": "Bryanna Neuwald", "width": 1}, {"from": "RBC", "to": "Husam Al Dakhil, PFP\u00ae", "width": 1}, {"from": "RBC", "to": "Mourad Abdelmonem", "width": 1}, {"from": "RBC", "to": "Keren Yu", "width": 1}, {"from": "RBC", "to": "Alison Gibbins", "width": 1}, {"from": "RBC", "to": "Mike Ronchka", "width": 1}, {"from": "RBC", "to": "Emily Wright", "width": 1}, {"from": "RBC", "to": "Kiara Ventulieri", "width": 1}, {"from": "RBC", "to": "Neil Kapoor", "width": 1}, {"from": "RBC", "to": "Breanna Ryan", "width": 1}, {"from": "RBC", "to": "Nicola Christie", "width": 1}, {"from": "RBC", "to": "Frederick Hood", "width": 1}, {"from": "RBC", "to": "Melody Zhao", "width": 1}, {"from": "RBC", "to": "Theodora Giovannelli", "width": 1}, {"from": "RBC", "to": "Christopher Cole", "width": 1}, {"from": "RBC", "to": "Ifeoma Udo", "width": 1}, {"from": "RBC", "to": "Heidi Wildeman", "width": 1}, {"from": "RBC", "to": "Thomas Golka", "width": 1}, {"from": "RBC", "to": "Rehana Ciriani", "width": 1}, {"from": "RBC", "to": "Karen Walker", "width": 1}, {"from": "RBC", "to": "Ruba Marar, MSc", "width": 1}, {"from": "RBC", "to": "Priya Patel, PMP", "width": 1}, {"from": "RBC", "to": "Elliot Barry", "width": 1}, {"from": "RBC", "to": "Gabrielle Davis", "width": 1}, {"from": "RBC", "to": "Natacha Lemay-Reaume", "width": 1}, {"from": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "to": "Brenda Sun", "width": 1}, {"from": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "to": "Adib Hossain, CPA, MAcc", "width": 1}, {"from": "Iridian Spectral Technologies", "to": "Mark Donahue", "width": 1}, {"from": "Iridian Spectral Technologies", "to": "Monica Coyne", "width": 1}, {"from": "Iridian Spectral Technologies", "to": "Jason Palidwar", "width": 1}, {"from": "Iridian Spectral Technologies", "to": "Robert Woods", "width": 1}, {"from": "Iridian Spectral Technologies", "to": "Helen Slegr, M.A.Sc., P.Eng.", "width": 1}, {"from": "RBC Capital Markets", "to": "Amrit Sandhu", "width": 1}, {"from": "RBC Capital Markets", "to": "Rachel Chui", "width": 1}, {"from": "RBC Capital Markets", "to": "Adele Berrizbeitia", "width": 1}, {"from": "RBC Capital Markets", "to": "Jaea Zuo", "width": 1}, {"from": "RBC Capital Markets", "to": "Sana Saeed", "width": 1}, {"from": "RBC Capital Markets", "to": "Mia Miscevic", "width": 1}, {"from": "RBC Capital Markets", "to": "Reem Araia", "width": 1}, {"from": "Carleton University", "to": "Melissa Robertson, CPA", "width": 1}, {"from": "Carleton University", "to": "Hamid Moradi", "width": 1}, {"from": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "to": "Sue Hutton", "width": 1}, {"from": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "to": "Mark Belanger", "width": 1}, {"from": "RBC Direct Investing", "to": "Mervyn Adams", "width": 1}, {"from": "RBC Direct Investing", "to": "Hania Aymen", "width": 1}, {"from": "CBRE", "to": "Lauren King", "width": 1}, {"from": "CBRE", "to": "Korey Sheppard-Greene", "width": 1}, {"from": "Bell", "to": "Parag Dey", "width": 1}, {"from": "Bell", "to": "Alexandra Lee", "width": 1}, {"from": "Bell", "to": "Fahad Alam Khan", "width": 1}, {"from": "Philips", "to": "Joanne Pe\u00f1a", "width": 1}, {"from": "Philips", "to": "Brian Butler", "width": 1}, {"from": "Philips", "to": "Chris Balugay", "width": 1}, {"from": "Philips", "to": "Juan Tosto", "width": 1}, {"from": "Philips", "to": "Teymour Seif-El-Nasr", "width": 1}, {"from": "Fullscript", "to": "Jill Andrews", "width": 1}, {"from": "Fullscript", "to": "Jamie Burns", "width": 1}, {"from": "Fullscript", "to": "Amanda Cummings", "width": 1}, {"from": "Anheuser-Busch InBev", "to": "Devin Hastie", "width": 1}, {"from": "Anheuser-Busch InBev", "to": "John Shipp (He/Him)", "width": 1}, {"from": "Self-Employed", "to": "Laetitia Duler", "width": 1}, {"from": "Self-Employed", "to": "Florence Jaffry Orsini", "width": 1}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "Anton Ritzu", "width": 1}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "Guillaume Lorget", "width": 1}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "William Desmole", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,622 @@
+---
+title: "Assignment 3"
+author: "Emery Dittmer"
+date: "2023-03-28"
+output:
+  github_document: default
+  md_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(arrow)
+```
+
+# 1:Load data
+
+Load the following data:
+  + applications from `app_data_sample.parquet`
+  + edges from `edges_sample.csv`
+
+```{r load-data,warning=FALSE}
+# change to your own path!
+data_path <- "Data/"
+applications <- read_parquet(paste0(data_path,"app_data_sample.parquet"))
+edges <- read_csv(paste0(data_path,"edges_sample.csv"))
+applications
+edges
+
+
+```
+
+## Get gender for examiners
+
+We'll get gender based on the first name of the examiner, which is recorded in the field `examiner_name_first`. We'll use library `gender` for that, relying on a modified version of their own [example](https://cran.r-project.org/web/packages/gender/vignettes/predicting-gender.html).
+
+Note that there are over 2 million records in the applications table -- that's because there are many records for each examiner, as many as the number of applications that examiner worked on during this time frame. Our first step therefore is to get all *unique* names in a separate list `examiner_names`. We will then guess gender for each one and will join this table back to the original dataset. So, let's get names without repetition:
+
+```{r gender-1}
+library(gender)
+#install_genderdata_package() # only run this line the first time you use the package, to get data for it
+# get a list of first names without repetitions
+examiner_names <- applications %>% 
+  distinct(examiner_name_first)
+examiner_names
+```
+
+Now let's use function `gender()` as shown in the example for the package to attach a gender and probability to each name and put the results into the table `examiner_names_gender`
+
+```{r gender-2}
+# get a table of names and gender
+examiner_names_gender <- examiner_names %>% 
+  do(results = gender(.$examiner_name_first, method = "ssa")) %>% 
+  unnest(cols = c(results), keep_empty = TRUE) %>% 
+  select(
+    examiner_name_first = name,
+    gender,
+    proportion_female
+  )
+examiner_names_gender
+```
+
+Finally, let's join that table back to our original applications data and discard the temporary tables we have just created to reduce clutter in our environment.
+
+```{r gender-3}
+# remove extra colums from the gender table
+examiner_names_gender <- examiner_names_gender %>% 
+  select(examiner_name_first, gender)
+# joining gender back to the dataset
+applications <- applications %>% 
+  left_join(examiner_names_gender, by = "examiner_name_first")
+# cleaning up
+rm(examiner_names)
+rm(examiner_names_gender)
+gc()
+```
+
+
+## Guess the examiner's race
+
+We'll now use package `wru` to estimate likely race of an examiner. Just like with gender, we'll get a list of unique names first, only now we are using surnames.
+
+```{r race-1}
+library(wru)
+examiner_surnames <- applications %>% 
+  select(surname = examiner_name_last) %>% 
+  distinct()
+examiner_surnames
+```
+We'll follow the instructions for the package outlined here [https://github.com/kosukeimai/wru](https://github.com/kosukeimai/wru).
+
+```{r race-2}
+examiner_race <- predict_race(voter.file = examiner_surnames, surname.only = T) %>% 
+  as_tibble()
+examiner_race
+write.csv(examiner_race, "examiner_race.csv", row.names=FALSE)
+```
+
+As you can see, we get probabilities across five broad US Census categories: white, black, Hispanic, Asian and other. (Some of you may correctly point out that Hispanic is not a race category in the US Census, but these are the limitations of this package.)
+
+Our final step here is to pick the race category that has the highest probability for each last name and then join the table back to the main applications table. See this example for comparing values across columns: [https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/). And this one for `case_when()` function: [https://dplyr.tidyverse.org/reference/case_when.html](https://dplyr.tidyverse.org/reference/case_when.html).
+
+```{r race-3}
+examiner_race <- examiner_race %>% 
+  mutate(max_race_p = pmax(pred.asi, pred.bla, pred.his, pred.oth, pred.whi)) %>% 
+  mutate(race = case_when(
+    max_race_p == pred.asi ~ "Asian",
+    max_race_p == pred.bla ~ "black",
+    max_race_p == pred.his ~ "Hispanic",
+    max_race_p == pred.oth ~ "other",
+    max_race_p == pred.whi ~ "white",
+    TRUE ~ NA_character_
+  ))
+examiner_race
+```
+
+Let's join the data back to the applications table.
+
+```{r race-4}
+# removing extra columns
+examiner_race <- examiner_race %>% 
+  select(surname,race)
+applications <- applications %>% 
+  left_join(examiner_race, by = c("examiner_name_last" = "surname"))
+rm(examiner_race)
+rm(examiner_surnames)
+gc()
+write.csv(examiner_race, "apps_examiner_details.csv", row.names=FALSE)
+```
+
+#2. Focus on Art Unit:Descriptive Stats
+## Work Unit Breakdown of people
+
+We will compare genders and ethnicity across all work units within the US Patent office. First let's do some descriptive statistics on the overall population.
+
+Lets keep only one observation per person for the data since once person could count twice for a work group 
+
+```{r group by art units  ,warning=FALSE}
+person_level_data <- applications %>% 
+  group_by(examiner_id) %>% 
+  summarise(
+    art_unit = min(examiner_art_unit, na.rm = TRUE),
+    gender = min(gender, na.rm = TRUE),
+    race = min(race,na.rm=TRUE)) %>%
+  mutate(
+    tc = floor(art_unit/100)*100,
+    work_group = as.factor(floor(art_unit/10)*10)
+  ) %>% 
+  filter(!is.na(gender) & !is.na(race)) # dropping all records where we don't know the gender
+person_level_data
+
+#grouping by work unit
+work_unit_level_data <-person_level_data %>%
+  group_by(work_group,race,gender) %>%
+  summarize(
+    n=n()
+  )
+work_unit_level_data
+
+#we will also need to aggregated by total number of people in work_unit
+work_unit_aggregated <- work_unit_level_data %>%
+  group_by(work_group) %>%
+  summarize(
+    n=sum(n)
+  ) %>%
+  arrange (desc(n))
+work_unit_aggregated
+```
+
+Let's plot the race, and gender as a function of workgroup. First looking at counts then distributions
+
+```{r}
+library(ggplot2)
+ggplot(work_unit_level_data) +
+  geom_boxplot(aes(x = work_group, color = gender))
+
+ggplot(work_unit_level_data,aes(x = work_group, color = gender, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+Let's plot for the top 5 work groups to make it easier to read. First we will look at the number (counts) then we will look at the distributions using box plots.
+```{r}
+work_unit_level_data_top5 <- work_unit_level_data %>%
+  filter(work_group %in% head(work_unit_aggregated$work_group,5))
+
+ggplot(work_unit_level_data_top5,aes(x = work_group, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())
+
+ggplot(work_unit_level_data_top5,aes(x = work_group, fill = gender, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())
+
+ggplot(work_unit_level_data_top5,aes(x = work_group, fill = gender, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())+
+  facet_wrap(~race)
+# 
+# ggplot(work_unit_level_data_top5) +
+#   geom_boxplot(aes(x = (work_group),y=n, color = gender))
+# 
+# ggplot(work_unit_level_data_top5) +
+#   geom_boxplot(aes(x = (work_group),y=n, color = gender))+
+#   facet_wrap(~race)
+remove(work_unit_level_data_top5)
+```
+Even the top 5 is alot of data. For the remaining analysis we will focus on the top 2 work_units:
+2130 and 1610.  Since we are only using 2 art units the ditribution is not as relenvant to plot at the moment.
+
+```{r}
+work_unit_level_data_top2 <- work_unit_level_data %>%
+  filter(work_group %in% head(work_unit_aggregated$work_group,2))
+
+ggplot(work_unit_level_data_top2,aes(x = work_group, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())
+
+ggplot(work_unit_level_data_top2,aes(x = work_group, fill = gender, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())
+
+ggplot(work_unit_level_data_top2,aes(x = work_group, fill = gender, y=n)) +
+  geom_bar(stat="identity", position=position_dodge())+
+  facet_wrap(~race)
+
+# ggplot(work_unit_level_data_top2) +
+#   geom_boxplot(aes(x = (work_group),y=n, color = gender))
+```
+
+
+```{r sum-1}
+subset_app_data <- person_level_data %>% 
+  #here we make sure on ly the top 2 work groups are picked
+  filter(work_group %in% head(work_unit_aggregated$work_group,2)) %>% 
+  mutate(race = race, gender =gender) %>% 
+  select(gender, race, work_group)
+```
+
+## Gender
+let's investigate gender, first accros borht work groups then within the workgroup
+```{r gender}
+subset_app_data %>% 
+  count(gender) %>% 
+  mutate(pct = n/sum(n))
+  
+subset_app_data %>% 
+  group_by(work_group) %>%
+  count(gender) %>% 
+  mutate(pct = n/sum(n))
+```
+
+## Race
+let's investigate race with the same process as above, first accros borht work groups then within the workgroup
+
+```{r sum-2}
+subset_app_data %>%
+  group_by(work_group) %>%
+  count(race) %>% 
+  mutate(pct = n/sum(n))
+```
+
+## Puttin it together
+
+Let's investgate both at the same time
+
+```{r sum-3}
+library(webr)
+PieDonut(subset_app_data, aes(gender,race), title = "USPTO Work Units 2130 & 1610 by gender and ethnicity")
+
+subset_app_data1 <- subset_app_data %>% filter(work_group==2130)
+subset_app_data2 <- subset_app_data %>% filter(work_group==1610)
+
+PieDonut(subset_app_data1, aes(gender,race), title = "USPTO Work Group 2130 breakown by gender and ethnicity", explodeDonut=TRUE)
+
+PieDonut(subset_app_data2, aes(gender,race), title = "USPTO Work Group 1610 breakown by gender and ethnicity", explodeDonut=TRUE)
+
+remove(subset_app_data1, subset_app_data2)
+
+```
+
+#3: Advice Network
+##Nodes & Edges
+First we need to subset the data and remove the examiners who are not in the work groups we are looking at
+
+```{r}
+#copy data in case
+edges_full <- edges
+edges <- edges_full
+
+subset_exam_id <- person_level_data %>%
+  filter(work_group %in% head(work_unit_aggregated$work_group,2)) %>%
+  select(examiner_id,work_group) %>%
+  drop_na()
+
+#crete the edges
+edges <- edges %>%
+  filter(ego_examiner_id %in% subset_exam_id$examiner_id)%>%
+  drop_na() %>%
+  mutate(from=ego_examiner_id,to=alter_examiner_id) %>%
+  select(from, to)
+
+#create the nodes
+#many issues with nodes will try pulling from edges list
+# nodes_all <- unique(select(edges_full, ego_examiner_id)) %>%
+#   mutate(id=ego_examiner_id, verticies =ego_examiner_id) %>%
+#   select(id,verticies) %>%
+#   drop_na
+
+nodes_all <-as.data.frame(do.call(rbind,append(as.list(edges$from),as.list(edges$to))))
+
+nodes_all <- nodes_all %>%
+  mutate(id=V1) %>%
+  select(id) %>%
+  distinct(id) %>%
+  drop_na()
+nodes <- nodes_all
+# nodes <- nodes_all %>%
+#   mutate(label=as.character(ego_examiner_id)) %>%
+#   filter(id %in% edges$from | id %in% edges$to ) %>%
+#   drop_na() %>%
+#   select(id,label)
+```
+
+
+```{r}
+library(visNetwork)
+visNetwork(nodes, edges)%>%
+  visLegend() %>%
+  visEdges(arrows ="to")%>%
+  visEdges(arrows ="from")
+```
+
+Based on this data we will only have about 121 employees in the work groups we are interested in
+
+
+### 3.1 Degree Centrality
+The count of the number of links each node has to other nodes. 
+For instance, seat A(labelled as 3 above) has a degree centrality of 3 since it is connected to 3 other nodes: 2, B & C (B labelled as 4 and C labelled as 5 above)
+
+
+We can validate this with the igraph package wich has a built in functionality for centrality degree
+```{r degree central igraph}
+library(igraph)
+library(tidygraph)
+library(tidyverse)
+
+g <- igraph::graph_from_data_frame(edges, vertices = nodes) %>% as_tbl_graph(directed=TRUE)
+#not sure why this isnt working
+#g = tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_degree()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  arrange(desc(degree)) %>%
+  rename(Centrality_Degree=degree) %>%
+  mutate(name=as.integer(name))
+
+nodes_all <- nodes_all %>%
+  left_join(tg_nodes,by=c("id"="name")) 
+
+remove(g,tg_nodes)
+
+```
+
+There is agreement between our calculations and the calculations for the package therefore we can use them!
+
+### 3.2 Closeness centrality
+	A measure that calculates the ability to spread information efficiently via the edges the node is connected to. It is calculated as the inverse of the average shortest path between nodes.
+	
+For instance, for node A (labelled 3), the closeness is 1/((1+2+1+1+2+2+2+2+3))=0.0625. The higher the number, the closer the node is to the center based on distance. See appendix For details
+
+```{r closeness centrality}
+g <- igraph::graph_from_data_frame(edges, vertices = nodes) %>% as_tbl_graph(directed=TRUE)
+
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_closeness()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  arrange(desc(degree)) %>%
+  rename(Centrality_Closeness=degree) %>%
+  mutate(name=as.integer(name))
+
+nodes_all <- nodes_all %>%
+  left_join(tg_nodes,by=c("id"="name")) 
+remove(g,tg_nodes)
+```
+
+### 3.3 Betweenness centrality
+A measure that detects a node’s influence over the flow of information within a graph. This is the sum of the shortest paths between two points i and j divided by the number of shortest paths that pass-through node v.
+
+```{r betweeness centrality}
+g <- igraph::graph_from_data_frame(edges, vertices = nodes) %>% as_tbl_graph(directed=TRUE)
+
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_betweenness()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  arrange(desc(degree)) %>%
+  rename(Centrality_Betweenness=degree) %>%
+  mutate(name=as.integer(name))
+
+nodes_all <- nodes_all %>%
+  left_join(tg_nodes,by=c("id"="name")) 
+remove(g,tg_nodes)
+```
+
+## Visualize all together
+
+LEt's put all the data together now!
+
+```{r}
+nodes <- nodes_all %>% 
+  left_join(subset_exam_id,by=c("id"="examiner_id")) %>%
+  mutate(label = paste("Examiner:",id,"\n",
+                      "Centrality Degre:",format(Centrality_Degree, digits = 2),"\n",
+                      "Closenness:",format(Centrality_Closeness, digits = 2),"\n",
+                      "Betweenness:",format(Centrality_Betweenness, digits = 2),"\n",
+                      sep = " "),
+         group=work_group) %>%
+  mutate(font.size = 12) %>%
+  drop_na()
+
+visNetwork(nodes, edges)%>%
+  visLegend() %>%
+  visEdges(arrows ="to")%>%
+  visEdges(arrows ="from")
+```
+```{r}
+nodes <- nodes %>% 
+  mutate(group=race)
+
+visNetwork(nodes, edges)%>%
+  visLegend() %>%
+  visEdges(arrows ="to")%>%
+  visEdges(arrows ="from")
+```
+
+```{r}
+nodes <- nodes %>% 
+  mutate(group=gender)
+
+visNetwork(nodes, edges)%>%
+  visLegend() %>%
+  visEdges(arrows ="to")%>%
+  visEdges(arrows ="from")
+```
+
+## Igraph version
+labels must be removed for igraph or else it does not work well.
+```{r}
+net <- igraph::graph_from_data_frame(edges, vertices = nodes_all) %>% as_tbl_graph(directed=TRUE)
+plot(net, edge.arrow.size=.4,vertex.label=NA,vertex.size=4)
+
+
+plot(net, edge.arrow.size=.4,vertex.label.cex=.4,vertex.label.dist=1,vertex.size=4)
+```
+
+## Now to look at measures of centrality accross ethnicities and genders
+
+
+```{r}
+#join race and gender data to nodes
+library(gt)
+nodes <- nodes %>%
+  left_join(person_level_data,by=c("id"="examiner_id","work_group"="work_group" ))
+
+ggplot(nodes) +
+  geom_bar(aes(x = work_group))
+
+ggplot(nodes) +
+  geom_bar(aes(x = work_group ,fill=gender))
+
+ggplot(nodes) +
+  geom_bar(aes(x = work_group ,fill=race))
+
+
+nodes %>% 
+  group_by(work_group) %>%
+  count(work_group) %>% 
+  mutate(pct_within_work_group = round(n/sum(n)*100,0)) %>% gt()
+
+nodes %>% 
+  group_by(work_group) %>%
+  count(gender) %>% 
+  mutate(pct_within_work_group = round(n/sum(n)*100,0)) %>% gt()
+
+nodes %>% 
+  group_by(work_group) %>%
+  count(race) %>% 
+  mutate(pct_within_work_group = round(n/sum(n)*100,0)) %>% gt()
+
+nodes %>% 
+  group_by(work_group) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+nodes %>% 
+  group_by(gender) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+nodes %>% 
+  group_by(race) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+nodes %>% 
+  group_by(work_group,race) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+nodes %>% 
+  group_by(race,gender) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+nodes %>% 
+  group_by(work_group,race,gender) %>%
+  summarize(
+    Sum_of_Centrality_Degree=sum(Centrality_Degree),
+    Sum_of_Centrality_Closeness=sum(Centrality_Closeness),
+    Sum_of_Centrality_Betweenness=sum(Centrality_Betweenness),
+    Count=n()
+  ) %>% gt()
+
+node_matrix_all <- edges %>%
+  left_join(nodes, by=c("from"="id")) %>%
+  select(from,to,race,gender) %>%
+  rename(from_gender=gender, from_race=race) %>%
+  left_join(nodes, by=c("to"="id")) %>%
+  select(from,to,race,gender,from_gender,from_race) %>%
+  rename(to_gender=gender, to_race=race) %>%
+  drop_na()
+
+node_matrix <- node_matrix_all %>%
+  group_by(to_race,from_race) %>%
+  summarize(
+    count=n()
+  )
+  
+pivot_wider(node_matrix, names_from = to_race, values_from = count )
+
+
+node_matrix <- node_matrix_all %>%
+  group_by(to_gender,from_gender) %>%
+  summarize(
+    count=n()
+  )
+  
+pivot_wider(node_matrix, names_from = to_gender, values_from = count )
+
+node_matrix <- node_matrix_all %>%
+  group_by(from_race,to_gender,from_gender,to_race) %>%
+  summarize(
+    count=n()
+  )
+  
+pivot_wider(node_matrix, names_from = c(to_race,to_gender), values_from = count )
+
+```
+
+## appendix
+testing to make sure examiners in edges data
+ 
+```{r}
+test<-merge(edges,person_level_data,by.x="to",by.y="examiner_id")
+test %>%
+  group_by(work_group) %>%
+  count(work_group) %>%
+  arrange(desc(n))
+```
+
+Nodes and edges mismatch solving
+```{r}
+test <- edges %>%
+  filter(from %in% nodes$id)
+
+test <- edges %>%
+  filter(from %in% nodes$id | to %in% nodes$id)
+
+test <- nodes %>%
+  filter(id %in% edges$to)
+
+
+edges[(!edges$from %in% nodes_all$id) ,]
+edges[(!edges$to %in% nodes_all$id) ,]
+
+```
+

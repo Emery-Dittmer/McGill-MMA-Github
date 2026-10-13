@@ -1,0 +1,362 @@
+---
+title: "Assignment 4"
+author: "Emery Dittmer"
+date: "2023-04-05"
+output:
+  github_document: default
+  md_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background
+
+This notebook contains all code and answers to the organizational network analytics assignment 4. Specifically we will be tackling the following question:
+
+1.Create variable for application processing time
+‘app_proc_time’ that measures the number of days (or
+weeks) from application filing date, until the final decision
+on it (patented or abandoned)
+2. Use linear regression models `lm()` to estimate the
+relationship between centrality and `app_proc_time`
+– Make sure to control for other characteristics of the examiner
+that you think might influence that relationship
+3. Does this relationship differ by examiner gender?
+– Hint: Include an interaction term `gender x centrality` into
+your models
+4. Discuss your findings and their implication for the USPTO
+
+# Data Cleaning & Pre-Processing
+
+### Load packages
+First we need to load the basic packages for the manipulation of data. Other packages will be loaded as needed.
+```{r packages , echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(arrow)
+library(lubridate)
+library(ggplot2)
+library(arrow)
+```
+
+Now we load in the data.
+There are 2 sources of data:
+The app_gender_rate data is the primary data we will use for now. This data contains the transaction data for all applications, the examiner who processed them and their associated traits such as gender and ethnicity.
+
+
+```{r load-data,warning=FALSE}
+# change to your own path!
+data_path <- "Data/"
+applications <- read_csv(paste0(data_path,'apps_examiner_details.csv'))
+edges <- read_csv(paste0(data_path,"edges_sample.csv"))
+applications
+edges
+```
+
+```{r}
+
+names(applications)
+
+```
+
+
+## Clean Data
+Now that we have the data, we can clean and pre-process it. We will remove all the fields with NAs so that we can get meaningful insights. 
+```{r cleaning the data}
+# Remove Nas from status date and gender
+applications <- applications %>% 
+  filter(!is.na(appl_status_date) | !is.na(gender) | !is.na(race))
+
+# Clean Date format
+#get the date format cleaned
+applications$Date_time=as.Date(applications$appl_status_date, format="%d%b%Y")
+
+#get the date format for the filing date cleaned
+applications$filing_date=as.Date(applications$filing_date, format="%d%b%Y")
+```
+
+## Pre-process
+
+There are 3 status that can exist for patent applications: "ISS"  "ABN"  "PEND" .
+We are only interested in the ones that have a decision or the ones that are issued (ISS) or abandoned (ABN)
+
+```{r pre-process data 1}
+#Remove all the data we will not need based on application status
+exclude_list=c("PEND")
+applications <- applications %>%
+  filter(!disposal_type %in% exclude_list)
+
+```
+
+We will need to do some brief value conversion
+
+```{r data type conversion}
+#Setting Gender as factor
+applications$gender = as.factor(applications$gender)
+
+#Setting ethnicity as factor
+applications$race = as.factor(applications$race)
+
+#Setting disposal type as factor
+applications$disposal_type = as.factor(applications$disposal_type)
+
+#setting the technology center as a factor
+applications$tc = as.factor(applications$tc)
+
+```
+
+# 1. Create 'app_proc_time' with  Feature Engineering
+
+Now for pre-processing we will need to add a column that computes the time between application date and decision date.
+This column is called the application time and is the time in days between application filing and 
+
+```{r feature engineering}
+#this is the amount of time in days that the applications take
+applications$app_proc_time <- applications$Date_time - applications$filing_date
+applications$app_proc_time <- as.numeric(applications$app_proc_time)
+
+#adding the year of filling and the year of approval to see time's effect
+applications$filing_year= as.numeric(year(applications$filing_date))
+applications$descision_year=as.numeric(year(applications$Date_time))
+
+```
+
+Invesitagtion of new feature
+
+```{r}
+summary(applications)
+
+```
+
+Let's look at the number of decisions issued first
+
+```{r brief investigation of new feature}
+library(ggplot2)
+#histograpm of total population
+ggplot(applications, aes(x=filing_year))+
+  geom_histogram(bins = 30)
+
+#histogram by tc
+ggplot(applications, aes(x=filing_year))+
+  geom_histogram(bins = 30)+
+  facet_grid(applications$tc)
+
+```
+
+Based on the Data there is a right cutoff problem around 2016. This means that we know applications are in process but that only the ones that recieve a quick turn around are recorded.
+Based on this data we will then need to filter these out as they will impact the correlation and prdictive analysis. 
+```{r date filters}
+trows=nrow(applications)
+#remove all values before 2017
+applications <- applications %>% 
+  filter(Date_time<= as.Date("2016-01-01"))
+
+#Data Remain
+nrow(applications)/trows*100
+
+```
+Based on this we eliminated 20% of the data. We will use the remaining 80% for our analysis.
+
+
+Let's look at the application duration against time
+```{r duration against time}
+apps=applications %>% 
+  group_by(Date_time) %>%
+  summarize(app_proc_time=mean(app_proc_time))
+
+#histograpm of total population
+ggplot(apps,aes(x=Date_time,y=app_proc_time))+
+  geom_bar(stat='identity')
+
+apps=applications %>% 
+  group_by(filing_date,tc,disposal_type) %>%
+  summarize(app_proc_time=mean(app_proc_time))
+
+ggplot()+
+  geom_point(data=apps, aes(filing_date,app_proc_time), size = 2,alpha=.005)+
+  facet_grid(apps$tc~apps$disposal_type)
+
+```
+
+It looks like over time the number of application days for processing increases. This may be because there are more applications.
+
+```{r brief investigation of new feature 3}
+#histograpm of total population
+ggplot(applications,aes(x=filing_date))+
+  geom_histogram()
+
+```
+The number of applications appears to be stable over time.
+
+# 2 Investigate relationships
+Use linear regression models `lm()` to estimate  relationship between centrality and `app_proc_time`
+
+##Nodes & Edges Creation
+First we need to create the netwrok data to calculate centrality
+We will remove any records that contain NAs to avoid future issues with coding
+
+```{r}
+#Create the edges from edge data
+edges_backup=edges
+#edges=edges_backup
+edges <- edges %>%
+  mutate(from=ego_examiner_id,to=alter_examiner_id) %>%
+  select(from, to) %>%
+  drop_na()
+
+#Create Nodes from Edges Data
+nodes <-as.data.frame(do.call(rbind,append(as.list(edges$from),as.list(edges$to))))
+
+nodes <- nodes %>%
+  mutate(id=V1) %>%
+  select(id) %>%
+  distinct(id) %>%
+  drop_na()
+
+```
+
+
+## Closeness Measures
+
+We will now add 3 closeness measures to the nodes data frame:
+
+1.Degree Centrality: The number of connections (or edges) that each node has.
+2. Closness Centrality : A measure that calculates the ability to spread information efficiently via the edges the node is connected to. It is calculated as the inverse of the average shortest path between nodes.
+3: Betweenness Centrality: A measure that detects a node’s influence over the flow of information within a graph.
+
+```{r degree central igraph,echo=FALSE}
+library(igraph)
+library(tidygraph)
+library(tidyverse)
+
+```
+
+```{r}
+g <- igraph::graph_from_data_frame(edges, vertices = nodes) %>% as_tbl_graph(directed=TRUE)
+#not sure why this isnt working
+#g = tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(Centrality_Degree = centrality_degree(),
+         Centrality_Closeness = centrality_closeness(),
+         Centrality_Betweenness = centrality_betweenness()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  mutate(name=as.integer(name))
+
+nodes <- nodes %>%
+  left_join(tg_nodes,by=c("id"="name")) 
+
+remove(g,tg_nodes)
+
+```
+
+Let's combine the centrality measures and the application data
+
+```{r}
+
+all_app_data <- applications %>%
+  left_join(nodes,by=c("examiner_id"="id"))
+
+
+# nodes <- nodes %>% 
+#   left_join(applications,by=c("id"="examiner_id")) %>%
+#   mutate(label = paste("Examiner:",id,"\n",
+#                       "Centrality:",format(Centrality_Degree, digits = 2),"\n",
+#                       "Closenness:",format(Centrality_Closeness, digits = 2),"\n",
+#                       "Betweenness:",format(Centrality_Betweenness, digits = 2),"\n",
+#                       sep = " ")) %>%
+#   mutate(font.size = 12)
+
+net <- igraph::graph_from_data_frame(edges, vertices = nodes) %>% as_tbl_graph(directed=TRUE)
+plot(net, edge.arrow.size=.4,vertex.label=NA,vertex.size=4)
+```
+
+```{r linear extrap}
+fit=lm(app_proc_time~Centrality_Degree, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~Centrality_Closeness, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~Centrality_Betweenness, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~Centrality_Degree+Centrality_Closeness+Centrality_Betweenness, data=all_app_data )
+summary(fit)
+
+```
+
+Based on these results bith degree closeness and betweenness are erlavant factors and the most important predictors.
+
+
+```{r}
+
+hist(fit$residuals, main="Histogram of Residuals",
+ ylab="Residuals")
+
+#Q-Q Plot
+qqnorm(fit$residuals)
+qqline(fit$residuals)
+
+```
+
+# 3 Gender
+3. Does this relationship differ by examiner gender?– Hint: Include an interaction term `gender x centrality` into
+your models
+
+We can treat gnerder as a binary variable where it is 1 if femal and 0 if male.Therefore these measurements are 
+
+```{r}
+
+all_app_data$gender_x_centrality=ifelse(all_app_data$gender=='female',0,all_app_data$Centrality_Degree)
+all_app_data$gender_x_closeness=ifelse(all_app_data$gender=='female',0,all_app_data$Centrality_Closeness)
+all_app_data$gender_x_betweeness=ifelse(all_app_data$gender=='female',0,all_app_data$Centrality_Betweenness)
+
+
+fit=lm(app_proc_time~gender_x_centrality, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~gender_x_closeness, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~gender_x_betweeness, data=all_app_data )
+summary(fit)
+
+fit=lm(app_proc_time~gender_x_centrality+gender_x_closeness+gender_x_betweeness, data=all_app_data )
+summary(fit)
+```
+
+Based on the model output it appears that the for woemn the centrality and closesness are inversely proportional to the processing time while the betweeness is proportiona.
+
+Based on the previous responses it appears that gender does not have a significant impact for between degree but closeness and cnetrality ande much better predictors for men 
+
+```{r include=FALSE}
+
+hist(fit$residuals, main="Histogram of Residuals",
+ ylab="Residuals")
+
+#Q-Q Plot
+qqnorm(fit$residuals)
+qqline(fit$residuals)
+
+```
+
+Based on the residual histogram the residuals are normally distributed and not a major concern for model accuracy.
+
+Furthermore the qqplots fit is not exact but good enough for our purposes.
+
+
+
+4. Discuss your findings and their implication for the USPTO
+
+Based on these findings there is sufficient evidence to point to centrality having a role with the USPTO application rates. IF  a person has higher degree centrality (the number of connections someone has) and closeness centrality they have a lower application time than people who have a high betweeness centrality. If we invesitaget how accessible is the flow of information to people there is some correlation between low application times and well information-connected people. therefore the USPTO should make efforts to connect and network people better.

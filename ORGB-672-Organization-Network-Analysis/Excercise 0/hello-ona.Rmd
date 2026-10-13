@@ -1,0 +1,20 @@
+---
+title: "Excercise 0"
+output: github_document
+---
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the data into R Markdown
+
+```{r loading}
+library(tidyverse)
+library(igraph)
+```
+
+
+```{r print text}
+print("Hello, network!")
+```

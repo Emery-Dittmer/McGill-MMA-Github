@@ -1,0 +1,1270 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Assignment 3},
+  pdfauthor={Emery Dittmer},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Assignment 3}
+\author{Emery Dittmer}
+\date{2023-03-28}
+
+\begin{document}
+\maketitle
+
+\#1:Load data
+
+Load the following data: + applications from
+\texttt{app\_data\_sample.parquet} + edges from
+\texttt{edges\_sample.csv}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# change to your own path!}
+\NormalTok{data\_path }\OtherTok{\textless{}{-}} \StringTok{"Data/"}
+\NormalTok{applications }\OtherTok{\textless{}{-}} \FunctionTok{read\_parquet}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(data\_path,}\StringTok{"app\_data\_sample.parquet"}\NormalTok{))}
+\NormalTok{edges }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(data\_path,}\StringTok{"edges\_sample.csv"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 32906 Columns: 4
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr  (1): application_number
+## dbl  (2): ego_examiner_id, alter_examiner_id
+## date (1): advice_date
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{applications}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2,018,477 x 16
+##    applicat~1 filing_d~2 exami~3 exami~4 exami~5 exami~6 exami~7 uspc_~8 uspc_~9
+##    <chr>      <date>     <chr>   <chr>   <chr>     <dbl>   <dbl> <chr>   <chr>  
+##  1 08284457   2000-01-26 HOWARD  JACQUE~ V         96082    1764 508     273000 
+##  2 08413193   2000-10-11 YILDIR~ BEKIR   L         87678    1764 208     179000 
+##  3 08531853   2000-05-17 HAMILT~ CYNTHIA <NA>      63213    1752 430     271100 
+##  4 08637752   2001-07-20 MOSHER  MARY    <NA>      73788    1648 530     388300 
+##  5 08682726   2000-04-10 BARR    MICHAEL E         77294    1762 427     430100 
+##  6 08687412   2000-04-28 GRAY    LINDA   LAMEY     68606    1734 156     204000 
+##  7 08716371   2004-01-26 MCMILL~ KARA    RENITA    89557    1627 424     401000 
+##  8 08765941   2000-06-23 FORD    VANESSA L         97543    1645 424     001210 
+##  9 08776818   2000-02-04 STRZEL~ TERESA  E         98714    1637 435     006000 
+## 10 08809677   2002-02-20 KIM     SUN     U         65530    1723 210     645000 
+## # ... with 2,018,467 more rows, 7 more variables: patent_number <chr>,
+## #   patent_issue_date <date>, abandon_date <date>, disposal_type <chr>,
+## #   appl_status_code <dbl>, appl_status_date <chr>, tc <dbl>, and abbreviated
+## #   variable names 1: application_number, 2: filing_date,
+## #   3: examiner_name_last, 4: examiner_name_first, 5: examiner_name_middle,
+## #   6: examiner_id, 7: examiner_art_unit, 8: uspc_class, 9: uspc_subclass
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{edges}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 32,906 x 4
+##    application_number advice_date ego_examiner_id alter_examiner_id
+##    <chr>              <date>                <dbl>             <dbl>
+##  1 09402488           2008-11-17            84356             66266
+##  2 09402488           2008-11-17            84356             63519
+##  3 09402488           2008-11-17            84356             98531
+##  4 09445135           2008-08-21            92953             71313
+##  5 09445135           2008-08-21            92953             93865
+##  6 09445135           2008-08-21            92953             91818
+##  7 09479304           2008-12-15            61767             69277
+##  8 09479304           2008-12-15            61767             92446
+##  9 09479304           2008-12-15            61767             66805
+## 10 09479304           2008-12-15            61767             70919
+## # ... with 32,896 more rows
+\end{verbatim}
+
+\hypertarget{get-gender-for-examiners}{%
+\subsection{Get gender for examiners}\label{get-gender-for-examiners}}
+
+We'll get gender based on the first name of the examiner, which is
+recorded in the field \texttt{examiner\_name\_first}. We'll use library
+\texttt{gender} for that, relying on a modified version of their own
+\href{https://cran.r-project.org/web/packages/gender/vignettes/predicting-gender.html}{example}.
+
+Note that there are over 2 million records in the applications table --
+that's because there are many records for each examiner, as many as the
+number of applications that examiner worked on during this time frame.
+Our first step therefore is to get all \emph{unique} names in a separate
+list \texttt{examiner\_names}. We will then guess gender for each one
+and will join this table back to the original dataset. So, let's get
+names without repetition:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(gender)}
+\CommentTok{\#install\_genderdata\_package() \# only run this line the first time you use the package, to get data for it}
+\CommentTok{\# get a list of first names without repetitions}
+\NormalTok{examiner\_names }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{distinct}\NormalTok{(examiner\_name\_first)}
+\NormalTok{examiner\_names}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2,595 x 1
+##    examiner_name_first
+##    <chr>              
+##  1 JACQUELINE         
+##  2 BEKIR              
+##  3 CYNTHIA            
+##  4 MARY               
+##  5 MICHAEL            
+##  6 LINDA              
+##  7 KARA               
+##  8 VANESSA            
+##  9 TERESA             
+## 10 SUN                
+## # ... with 2,585 more rows
+\end{verbatim}
+
+Now let's use function \texttt{gender()} as shown in the example for the
+package to attach a gender and probability to each name and put the
+results into the table \texttt{examiner\_names\_gender}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# get a table of names and gender}
+\NormalTok{examiner\_names\_gender }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_names }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{do}\NormalTok{(}\AttributeTok{results =} \FunctionTok{gender}\NormalTok{(.}\SpecialCharTok{$}\NormalTok{examiner\_name\_first, }\AttributeTok{method =} \StringTok{"ssa"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{unnest}\NormalTok{(}\AttributeTok{cols =} \FunctionTok{c}\NormalTok{(results), }\AttributeTok{keep\_empty =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(}
+    \AttributeTok{examiner\_name\_first =}\NormalTok{ name,}
+\NormalTok{    gender,}
+\NormalTok{    proportion\_female}
+\NormalTok{  )}
+\NormalTok{examiner\_names\_gender}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1,822 x 3
+##    examiner_name_first gender proportion_female
+##    <chr>               <chr>              <dbl>
+##  1 AARON               male              0.0082
+##  2 ABDEL               male              0     
+##  3 ABDOU               male              0     
+##  4 ABDUL               male              0     
+##  5 ABDULHAKIM          male              0     
+##  6 ABDULLAH            male              0     
+##  7 ABDULLAHI           male              0     
+##  8 ABIGAIL             female            0.998 
+##  9 ABIMBOLA            female            0.944 
+## 10 ABRAHAM             male              0.0031
+## # ... with 1,812 more rows
+\end{verbatim}
+
+Finally, let's join that table back to our original applications data
+and discard the temporary tables we have just created to reduce clutter
+in our environment.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# remove extra colums from the gender table}
+\NormalTok{examiner\_names\_gender }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_names\_gender }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(examiner\_name\_first, gender)}
+\CommentTok{\# joining gender back to the dataset}
+\NormalTok{applications }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(examiner\_names\_gender, }\AttributeTok{by =} \StringTok{"examiner\_name\_first"}\NormalTok{)}
+\CommentTok{\# cleaning up}
+\FunctionTok{rm}\NormalTok{(examiner\_names)}
+\FunctionTok{rm}\NormalTok{(examiner\_names\_gender)}
+\FunctionTok{gc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            used  (Mb) gc trigger  (Mb) max used  (Mb)
+## Ncells  4668746 249.4    8231217 439.6  5114567 273.2
+## Vcells 49883494 380.6   93063248 710.1 80199264 611.9
+\end{verbatim}
+
+\hypertarget{guess-the-examiners-race}{%
+\subsection{Guess the examiner's race}\label{guess-the-examiners-race}}
+
+We'll now use package \texttt{wru} to estimate likely race of an
+examiner. Just like with gender, we'll get a list of unique names first,
+only now we are using surnames.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(wru)}
+\NormalTok{examiner\_surnames }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(}\AttributeTok{surname =}\NormalTok{ examiner\_name\_last) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{distinct}\NormalTok{()}
+\NormalTok{examiner\_surnames}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3,806 x 1
+##    surname   
+##    <chr>     
+##  1 HOWARD    
+##  2 YILDIRIM  
+##  3 HAMILTON  
+##  4 MOSHER    
+##  5 BARR      
+##  6 GRAY      
+##  7 MCMILLIAN 
+##  8 FORD      
+##  9 STRZELECKA
+## 10 KIM       
+## # ... with 3,796 more rows
+\end{verbatim}
+
+We'll follow the instructions for the package outlined here
+\url{https://github.com/kosukeimai/wru}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{examiner\_race }\OtherTok{\textless{}{-}} \FunctionTok{predict\_race}\NormalTok{(}\AttributeTok{voter.file =}\NormalTok{ examiner\_surnames, }\AttributeTok{surname.only =}\NormalTok{ T) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{as\_tibble}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Unknown or uninitialised column: `state`.
+\end{verbatim}
+
+\begin{verbatim}
+## Proceeding with last name predictions...
+\end{verbatim}
+
+\begin{verbatim}
+## i All local files already up-to-date!
+\end{verbatim}
+
+\begin{verbatim}
+## 701 (18.4%) individuals' last names were not matched.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{examiner\_race}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3,806 x 6
+##    surname    pred.whi pred.bla pred.his pred.asi pred.oth
+##    <chr>         <dbl>    <dbl>    <dbl>    <dbl>    <dbl>
+##  1 HOWARD       0.597   0.295    0.0275   0.00690   0.0741
+##  2 YILDIRIM     0.807   0.0273   0.0694   0.0165    0.0798
+##  3 HAMILTON     0.656   0.239    0.0286   0.00750   0.0692
+##  4 MOSHER       0.915   0.00425  0.0291   0.00917   0.0427
+##  5 BARR         0.784   0.120    0.0268   0.00830   0.0615
+##  6 GRAY         0.640   0.252    0.0281   0.00748   0.0724
+##  7 MCMILLIAN    0.322   0.554    0.0212   0.00340   0.0995
+##  8 FORD         0.576   0.320    0.0275   0.00621   0.0697
+##  9 STRZELECKA   0.472   0.171    0.220    0.0825    0.0543
+## 10 KIM          0.0169  0.00282  0.00546  0.943     0.0319
+## # ... with 3,796 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.csv}\NormalTok{(examiner\_race, }\StringTok{"examiner\_race.csv"}\NormalTok{, }\AttributeTok{row.names=}\ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+As you can see, we get probabilities across five broad US Census
+categories: white, black, Hispanic, Asian and other. (Some of you may
+correctly point out that Hispanic is not a race category in the US
+Census, but these are the limitations of this package.)
+
+Our final step here is to pick the race category that has the highest
+probability for each last name and then join the table back to the main
+applications table. See this example for comparing values across
+columns:
+\url{https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/}. And
+this one for \texttt{case\_when()} function:
+\url{https://dplyr.tidyverse.org/reference/case_when.html}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{examiner\_race }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_race }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{max\_race\_p =} \FunctionTok{pmax}\NormalTok{(pred.asi, pred.bla, pred.his, pred.oth, pred.whi)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{race =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    max\_race\_p }\SpecialCharTok{==}\NormalTok{ pred.asi }\SpecialCharTok{\textasciitilde{}} \StringTok{"Asian"}\NormalTok{,}
+\NormalTok{    max\_race\_p }\SpecialCharTok{==}\NormalTok{ pred.bla }\SpecialCharTok{\textasciitilde{}} \StringTok{"black"}\NormalTok{,}
+\NormalTok{    max\_race\_p }\SpecialCharTok{==}\NormalTok{ pred.his }\SpecialCharTok{\textasciitilde{}} \StringTok{"Hispanic"}\NormalTok{,}
+\NormalTok{    max\_race\_p }\SpecialCharTok{==}\NormalTok{ pred.oth }\SpecialCharTok{\textasciitilde{}} \StringTok{"other"}\NormalTok{,}
+\NormalTok{    max\_race\_p }\SpecialCharTok{==}\NormalTok{ pred.whi }\SpecialCharTok{\textasciitilde{}} \StringTok{"white"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \ConstantTok{NA\_character\_}
+\NormalTok{  ))}
+\NormalTok{examiner\_race}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 3,806 x 8
+##    surname    pred.whi pred.bla pred.his pred.asi pred.oth max_race_p race 
+##    <chr>         <dbl>    <dbl>    <dbl>    <dbl>    <dbl>      <dbl> <chr>
+##  1 HOWARD       0.597   0.295    0.0275   0.00690   0.0741      0.597 white
+##  2 YILDIRIM     0.807   0.0273   0.0694   0.0165    0.0798      0.807 white
+##  3 HAMILTON     0.656   0.239    0.0286   0.00750   0.0692      0.656 white
+##  4 MOSHER       0.915   0.00425  0.0291   0.00917   0.0427      0.915 white
+##  5 BARR         0.784   0.120    0.0268   0.00830   0.0615      0.784 white
+##  6 GRAY         0.640   0.252    0.0281   0.00748   0.0724      0.640 white
+##  7 MCMILLIAN    0.322   0.554    0.0212   0.00340   0.0995      0.554 black
+##  8 FORD         0.576   0.320    0.0275   0.00621   0.0697      0.576 white
+##  9 STRZELECKA   0.472   0.171    0.220    0.0825    0.0543      0.472 white
+## 10 KIM          0.0169  0.00282  0.00546  0.943     0.0319      0.943 Asian
+## # ... with 3,796 more rows
+\end{verbatim}
+
+Let's join the data back to the applications table.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# removing extra columns}
+\NormalTok{examiner\_race }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_race }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(surname,race)}
+\NormalTok{applications }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(examiner\_race, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"examiner\_name\_last"} \OtherTok{=} \StringTok{"surname"}\NormalTok{))}
+\FunctionTok{rm}\NormalTok{(examiner\_race)}
+\FunctionTok{rm}\NormalTok{(examiner\_surnames)}
+\FunctionTok{gc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            used  (Mb) gc trigger  (Mb) max used  (Mb)
+## Ncells  4803699 256.6    8231217 439.6  8231217 439.6
+## Vcells 54217558 413.7  111755897 852.7 92961500 709.3
+\end{verbatim}
+
+\hypertarget{examiners-tenure}{%
+\subsection{Examiner's tenure}\label{examiners-tenure}}
+
+To figure out the timespan for which we observe each examiner in the
+applications data, let's find the first and the last observed date for
+each examiner. We'll first get examiner IDs and application dates in a
+separate table, for ease of manipulation. We'll keep examiner ID (the
+field \texttt{examiner\_id}), and earliest and latest dates for each
+application (\texttt{filing\_date} and \texttt{appl\_status\_date}
+respectively). We'll use functions in package \texttt{lubridate} to work
+with date and time values.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(lubridate) }\CommentTok{\# to work with dates}
+\NormalTok{examiner\_dates }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(examiner\_id, filing\_date, appl\_status\_date) }
+\NormalTok{examiner\_dates}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2,018,477 x 3
+##    examiner_id filing_date appl_status_date  
+##          <dbl> <date>      <chr>             
+##  1       96082 2000-01-26  30jan2003 00:00:00
+##  2       87678 2000-10-11  27sep2010 00:00:00
+##  3       63213 2000-05-17  30mar2009 00:00:00
+##  4       73788 2001-07-20  07sep2009 00:00:00
+##  5       77294 2000-04-10  19apr2001 00:00:00
+##  6       68606 2000-04-28  16jul2001 00:00:00
+##  7       89557 2004-01-26  15may2017 00:00:00
+##  8       97543 2000-06-23  03apr2002 00:00:00
+##  9       98714 2000-02-04  27nov2002 00:00:00
+## 10       65530 2002-02-20  23mar2009 00:00:00
+## # ... with 2,018,467 more rows
+\end{verbatim}
+
+The dates look inconsistent in terms of formatting. Let's make them
+consistent. We'll create new variables \texttt{start\_date} and
+\texttt{end\_date}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{examiner\_dates }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_dates }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{start\_date =} \FunctionTok{ymd}\NormalTok{(filing\_date), }\AttributeTok{end\_date =} \FunctionTok{as\_date}\NormalTok{(}\FunctionTok{dmy\_hms}\NormalTok{(appl\_status\_date)))}
+\end{Highlighting}
+\end{Shaded}
+
+Let's now identify the earliest and the latest date for each examiner
+and calculate the difference in days, which is their tenure in the
+organization.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{examiner\_dates }\OtherTok{\textless{}{-}}\NormalTok{ examiner\_dates }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(examiner\_id) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{earliest\_date =} \FunctionTok{min}\NormalTok{(start\_date, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{), }
+    \AttributeTok{latest\_date =} \FunctionTok{max}\NormalTok{(end\_date, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{tenure\_days =} \FunctionTok{interval}\NormalTok{(earliest\_date, latest\_date) }\SpecialCharTok{\%/\%} \FunctionTok{days}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{year}\NormalTok{(latest\_date)}\SpecialCharTok{\textless{}}\DecValTok{2018}\NormalTok{)}
+\NormalTok{examiner\_dates}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 5,625 x 4
+##    examiner_id earliest_date latest_date tenure_days
+##          <dbl> <date>        <date>            <dbl>
+##  1       59012 2004-07-28    2015-07-24         4013
+##  2       59025 2009-10-26    2017-05-18         2761
+##  3       59030 2005-12-12    2017-05-22         4179
+##  4       59040 2007-09-11    2017-05-23         3542
+##  5       59052 2001-08-21    2007-02-28         2017
+##  6       59054 2000-11-10    2016-12-23         5887
+##  7       59055 2004-11-02    2007-12-26         1149
+##  8       59056 2000-03-24    2017-05-22         6268
+##  9       59074 2000-01-31    2017-03-17         6255
+## 10       59081 2011-04-21    2017-05-19         2220
+## # ... with 5,615 more rows
+\end{verbatim}
+
+Joining back to the applications data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{applications }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(examiner\_dates, }\AttributeTok{by =} \StringTok{"examiner\_id"}\NormalTok{)}
+\FunctionTok{rm}\NormalTok{(examiner\_dates)}
+\FunctionTok{gc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            used  (Mb) gc trigger   (Mb)  max used   (Mb)
+## Ncells  4809869 256.9   14947240  798.3  14947240  798.3
+## Vcells 64481394 492.0  134187076 1023.8 134152440 1023.6
+\end{verbatim}
+
+\#2. Focus on Art Unit:Descriptive Stats \#\# Work Unit Breakdown of
+people
+
+We will compare genders and ethnicity across all work units within the
+US Patent office. First let's do some descriptive statistics on the
+overall population.
+
+Lets keep only one observation per person for the data since once person
+could count twice for a work group
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{person\_level\_data }\OtherTok{\textless{}{-}}\NormalTok{ applications }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(examiner\_id) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{art\_unit =} \FunctionTok{min}\NormalTok{(examiner\_art\_unit, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{gender =} \FunctionTok{min}\NormalTok{(gender, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{race =} \FunctionTok{min}\NormalTok{(race,}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{start\_year =} \FunctionTok{min}\NormalTok{(}\FunctionTok{year}\NormalTok{(earliest\_date), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{latest\_date =} \FunctionTok{max}\NormalTok{(latest\_date, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{tc =} \FunctionTok{floor}\NormalTok{(art\_unit}\SpecialCharTok{/}\DecValTok{100}\NormalTok{)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{,}
+    \AttributeTok{work\_group =} \FunctionTok{as.factor}\NormalTok{(}\FunctionTok{floor}\NormalTok{(art\_unit}\SpecialCharTok{/}\DecValTok{10}\NormalTok{)}\SpecialCharTok{*}\DecValTok{10}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(gender) }\SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(race)) }\CommentTok{\# dropping all records where we don\textquotesingle{}t know the gender}
+\NormalTok{person\_level\_data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4,849 x 8
+##    examiner_id art_unit gender race  start_year latest_date    tc work_group
+##          <dbl>    <dbl> <chr>  <chr>      <dbl> <date>      <dbl> <fct>     
+##  1       59012     1716 male   white       2004 2015-07-24   1700 1710      
+##  2       59025     2465 male   Asian       2009 2017-05-18   2400 2460      
+##  3       59040     1724 female Asian       2007 2017-05-23   1700 1720      
+##  4       59052     2138 male   Asian       2001 2007-02-28   2100 2130      
+##  5       59055     2165 male   Asian       2004 2007-12-26   2100 2160      
+##  6       59056     2124 male   Asian       2000 2017-05-22   2100 2120      
+##  7       59081     2489 male   Asian       2011 2017-05-19   2400 2480      
+##  8       59086     2487 female white       2010 2017-05-18   2400 2480      
+##  9       59096     1612 male   white       2000 2015-11-20   1600 1610      
+## 10       59117     2439 male   white       2009 2011-09-02   2400 2430      
+## # ... with 4,839 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#grouping by work unit}
+\NormalTok{work\_unit\_level\_data }\OtherTok{\textless{}{-}}\NormalTok{person\_level\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(work\_group,race,gender) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{n=}\FunctionTok{n}\NormalTok{()}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `summarise()` has grouped output by 'work_group', 'race'. You can override
+## using the `.groups` argument.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{work\_unit\_level\_data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 263 x 4
+## # Groups:   work_group, race [146]
+##    work_group race     gender     n
+##    <fct>      <chr>    <chr>  <int>
+##  1 1600       Asian    female     3
+##  2 1600       black    female     1
+##  3 1600       white    female    13
+##  4 1600       white    male      18
+##  5 1610       Asian    female    18
+##  6 1610       Asian    male      15
+##  7 1610       black    female     4
+##  8 1610       black    male       2
+##  9 1610       Hispanic female     2
+## 10 1610       Hispanic male       3
+## # ... with 253 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#we will also need to aggregated by total number of people in work\_unit}
+\NormalTok{work\_unit\_aggregated }\OtherTok{\textless{}{-}}\NormalTok{ work\_unit\_level\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{n=}\FunctionTok{sum}\NormalTok{(n)}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{ (}\FunctionTok{desc}\NormalTok{(n))}
+\NormalTok{work\_unit\_aggregated}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 38 x 2
+##    work_group     n
+##    <fct>      <int>
+##  1 2130         237
+##  2 1610         226
+##  3 2150         226
+##  4 1720         225
+##  5 2120         210
+##  6 1710         208
+##  7 1630         207
+##  8 2410         203
+##  9 2160         197
+## 10 1770         189
+## # ... with 28 more rows
+\end{verbatim}
+
+Let's plot the race, and gender as a function of workgroup. First
+looking at counts then distributions
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{color =}\NormalTok{ gender))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{color =}\NormalTok{ gender, }\AttributeTok{y=}\NormalTok{n)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{position=}\FunctionTok{position\_dodge}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-1-2.pdf}
+
+Let's plot for the top 5 work groups to make it easier to read. First we
+will look at the number (counts) then we will look at the distributions
+using box plots.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{work\_unit\_level\_data\_top5 }\OtherTok{\textless{}{-}}\NormalTok{ work\_unit\_level\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(work\_group }\SpecialCharTok{\%in\%} \FunctionTok{head}\NormalTok{(work\_unit\_aggregated}\SpecialCharTok{$}\NormalTok{work\_group,}\DecValTok{5}\NormalTok{))}
+
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top5,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{fill =}\NormalTok{ gender, }\AttributeTok{y=}\NormalTok{n)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{position=}\FunctionTok{position\_dodge}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top5,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{fill =}\NormalTok{ gender, }\AttributeTok{y=}\NormalTok{n)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{position=}\FunctionTok{position\_dodge}\NormalTok{())}\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{race)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-2-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top5) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ (work\_group),}\AttributeTok{y=}\NormalTok{n, }\AttributeTok{color =}\NormalTok{ gender))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-2-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top5) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ (work\_group),}\AttributeTok{y=}\NormalTok{n, }\AttributeTok{color =}\NormalTok{ gender))}\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{race)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-2-4.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{remove}\NormalTok{(work\_unit\_level\_data\_top5)}
+\end{Highlighting}
+\end{Shaded}
+
+Even the top 5 is alot of data. For the remaining analysis we will focus
+on the top 2 work\_units: 2130 and 1610. Since we are only using 2 art
+units the ditribution is not as relenvant to plot at the moment.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{work\_unit\_level\_data\_top2 }\OtherTok{\textless{}{-}}\NormalTok{ work\_unit\_level\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(work\_group }\SpecialCharTok{\%in\%} \FunctionTok{head}\NormalTok{(work\_unit\_aggregated}\SpecialCharTok{$}\NormalTok{work\_group,}\DecValTok{2}\NormalTok{))}
+
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top2,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{fill =}\NormalTok{ gender, }\AttributeTok{y=}\NormalTok{n)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{position=}\FunctionTok{position\_dodge}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top2,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ work\_group, }\AttributeTok{fill =}\NormalTok{ gender, }\AttributeTok{y=}\NormalTok{n)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{position=}\FunctionTok{position\_dodge}\NormalTok{())}\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{race)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(work\_unit\_level\_data\_top2) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ (work\_group),}\AttributeTok{y=}\NormalTok{n, }\AttributeTok{color =}\NormalTok{ gender))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-3-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_app\_data }\OtherTok{\textless{}{-}}\NormalTok{ person\_level\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \CommentTok{\#here we make sure on ly the top 2 work groups are picked}
+  \FunctionTok{filter}\NormalTok{(work\_group }\SpecialCharTok{\%in\%} \FunctionTok{head}\NormalTok{(work\_unit\_aggregated}\SpecialCharTok{$}\NormalTok{work\_group,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{race =}\NormalTok{ race, }\AttributeTok{gender =}\NormalTok{gender) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(gender, race, work\_group)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{gender}{%
+\subsection{Gender}\label{gender}}
+
+let's investigate gender, first accros borht work groups then within the
+workgroup
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_app\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{count}\NormalTok{(gender) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(n))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2 x 3
+##   gender     n   pct
+##   <chr>  <int> <dbl>
+## 1 female   160 0.346
+## 2 male     303 0.654
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_app\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(gender) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(n))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 4
+## # Groups:   work_group [2]
+##   work_group gender     n   pct
+##   <fct>      <chr>  <int> <dbl>
+## 1 1610       female   108 0.478
+## 2 1610       male     118 0.522
+## 3 2130       female    52 0.219
+## 4 2130       male     185 0.781
+\end{verbatim}
+
+\hypertarget{race}{%
+\subsection{Race}\label{race}}
+
+let's investigate race with the same process as above, first accros
+borht work groups then within the workgroup
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_app\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(race) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(n))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 4
+## # Groups:   work_group [2]
+##   work_group race         n    pct
+##   <fct>      <chr>    <int>  <dbl>
+## 1 1610       Asian       33 0.146 
+## 2 1610       black        6 0.0265
+## 3 1610       Hispanic     5 0.0221
+## 4 1610       white      182 0.805 
+## 5 2130       Asian       69 0.291 
+## 6 2130       black       15 0.0633
+## 7 2130       Hispanic     9 0.0380
+## 8 2130       white      144 0.608
+\end{verbatim}
+
+\hypertarget{puttin-it-together}{%
+\subsection{Puttin it together}\label{puttin-it-together}}
+
+Let's investgate both at the same time
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(webr)}
+\FunctionTok{PieDonut}\NormalTok{(subset\_app\_data, }\FunctionTok{aes}\NormalTok{(gender,race), }\AttributeTok{title =} \StringTok{"USPTO Work Units 2130 \& 1610 by gender and ethnicity"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: The `<scale>` argument of `guides()` cannot be `FALSE`. Use "none" instead as
+## of ggplot2 3.3.4.
+## i The deprecated feature was likely used in the webr package.
+##   Please report the issue at <]8;;https://github.com/cardiomoon/webr/issueshttps://github.com/cardiomoon/webr/issues]8;;>.
+\end{verbatim}
+
+\includegraphics{Ex3_files/figure-latex/sum-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_app\_data1 }\OtherTok{\textless{}{-}}\NormalTok{ subset\_app\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(work\_group}\SpecialCharTok{==}\DecValTok{2130}\NormalTok{)}
+\NormalTok{subset\_app\_data2 }\OtherTok{\textless{}{-}}\NormalTok{ subset\_app\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(work\_group}\SpecialCharTok{==}\DecValTok{1610}\NormalTok{)}
+
+\FunctionTok{PieDonut}\NormalTok{(subset\_app\_data1, }\FunctionTok{aes}\NormalTok{(gender,race), }\AttributeTok{title =} \StringTok{"USPTO Work Group 2130 breakown by gender and ethnicity"}\NormalTok{, }\AttributeTok{explodeDonut=}\ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in geom_arc_bar(aes_string(x0 = "x", y0 = "y", r0 = as.character(r1), :
+## Ignoring unknown aesthetics: explode
+\end{verbatim}
+
+\includegraphics{Ex3_files/figure-latex/sum-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{PieDonut}\NormalTok{(subset\_app\_data2, }\FunctionTok{aes}\NormalTok{(gender,race), }\AttributeTok{title =} \StringTok{"USPTO Work Group 1610 breakown by gender and ethnicity"}\NormalTok{, }\AttributeTok{explodeDonut=}\ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in geom_arc_bar(aes_string(x0 = "x", y0 = "y", r0 = as.character(r1), :
+## Ignoring unknown aesthetics: explode
+\end{verbatim}
+
+\includegraphics{Ex3_files/figure-latex/sum-3-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{remove}\NormalTok{(subset\_app\_data1, subset\_app\_data2)}
+\end{Highlighting}
+\end{Shaded}
+
+\#3: Advice Network \#\#Nodes \& Edges First we need to subset the data
+and remove the examiners who are not in the work groups we are looking
+at
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#copy data in case}
+\NormalTok{edges\_full }\OtherTok{\textless{}{-}}\NormalTok{ edges}
+\NormalTok{edges }\OtherTok{\textless{}{-}}\NormalTok{ edges\_full}
+
+\NormalTok{subset\_exam\_id }\OtherTok{\textless{}{-}}\NormalTok{ person\_level\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(work\_group }\SpecialCharTok{\%in\%} \FunctionTok{head}\NormalTok{(work\_unit\_aggregated}\SpecialCharTok{$}\NormalTok{work\_group,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(examiner\_id,work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{drop\_na}\NormalTok{()}
+
+\CommentTok{\#crete the edges}
+\NormalTok{edges }\OtherTok{\textless{}{-}}\NormalTok{ edges }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(ego\_examiner\_id }\SpecialCharTok{\%in\%}\NormalTok{ subset\_exam\_id}\SpecialCharTok{$}\NormalTok{examiner\_id)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{drop\_na}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{from=}\NormalTok{ego\_examiner\_id,}\AttributeTok{to=}\NormalTok{alter\_examiner\_id) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(from, to)}
+
+\CommentTok{\#create the nodes}
+\CommentTok{\#many issues with nodes will try pulling from edges list}
+\CommentTok{\# nodes\_all \textless{}{-} unique(select(edges\_full, ego\_examiner\_id)) \%\textgreater{}\%}
+\CommentTok{\#   mutate(id=ego\_examiner\_id, verticies =ego\_examiner\_id) \%\textgreater{}\%}
+\CommentTok{\#   select(id,verticies) \%\textgreater{}\%}
+\CommentTok{\#   drop\_na}
+
+\NormalTok{nodes\_all }\OtherTok{\textless{}{-}}\FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{do.call}\NormalTok{(rbind,}\FunctionTok{append}\NormalTok{(}\FunctionTok{as.list}\NormalTok{(edges}\SpecialCharTok{$}\NormalTok{from),}\FunctionTok{as.list}\NormalTok{(edges}\SpecialCharTok{$}\NormalTok{to))))}
+
+\NormalTok{nodes\_all }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{id=}\NormalTok{V1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(id) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{distinct}\NormalTok{(id) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{drop\_na}\NormalTok{()}
+\NormalTok{nodes }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all}
+\CommentTok{\# nodes \textless{}{-} nodes\_all \%\textgreater{}\%}
+\CommentTok{\#   mutate(label=as.character(ego\_examiner\_id)) \%\textgreater{}\%}
+\CommentTok{\#   filter(id \%in\% edges$from | id \%in\% edges$to ) \%\textgreater{}\%}
+\CommentTok{\#   drop\_na() \%\textgreater{}\%}
+\CommentTok{\#   select(id,label)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(visNetwork)}
+\FunctionTok{visNetwork}\NormalTok{(nodes, edges)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visLegend}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visEdges}\NormalTok{(}\AttributeTok{arrows =}\StringTok{"to"}\NormalTok{)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visEdges}\NormalTok{(}\AttributeTok{arrows =}\StringTok{"from"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\hypertarget{degree-centrality}{%
+\subsubsection{3.1 Degree Centrality}\label{degree-centrality}}
+
+The count of the number of links each node has to other nodes. For
+instance, seat A(labelled as 3 above) has a degree centrality of 3 since
+it is connected to 3 other nodes: 2, B \& C (B labelled as 4 and C
+labelled as 5 above)
+
+We can validate this with the igraph package wich has a built in
+functionality for centrality degree
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(igraph)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'igraph'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:lubridate':
+## 
+##     %--%, union
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:dplyr':
+## 
+##     as_data_frame, groups, union
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:purrr':
+## 
+##     compose, simplify
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:tidyr':
+## 
+##     crossing
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:tibble':
+## 
+##     as_data_frame
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     decompose, spectrum
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidygraph)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'tidygraph'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:igraph':
+## 
+##     groups
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     filter
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{graph\_from\_data\_frame}\NormalTok{(edges, }\AttributeTok{vertices =}\NormalTok{ nodes) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as\_tbl\_graph}\NormalTok{(}\AttributeTok{directed=}\ConstantTok{TRUE}\NormalTok{)}
+\CommentTok{\#not sure why this isnt working}
+\CommentTok{\#g = tbl\_graph(nodes = nodes, edges = edges, directed = FALSE)}
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ g }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{degree =} \FunctionTok{centrality\_degree}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(edges)}
+
+\NormalTok{tg\_nodes }\OtherTok{\textless{}{-}}
+\NormalTok{  g }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{data.frame}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(degree)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Centrality\_Degree=}\NormalTok{degree) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{name=}\FunctionTok{as.integer}\NormalTok{(name))}
+
+\NormalTok{nodes\_all }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{left\_join}\NormalTok{(tg\_nodes,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"id"}\OtherTok{=}\StringTok{"name"}\NormalTok{)) }
+
+\FunctionTok{remove}\NormalTok{(g,tg\_nodes)}
+\end{Highlighting}
+\end{Shaded}
+
+There is agreement between our calculations and the calculations for the
+package therefore we can use them!
+
+\hypertarget{closeness-centrality}{%
+\subsubsection{3.2 Closeness centrality}\label{closeness-centrality}}
+
+\begin{verbatim}
+A measure that calculates the ability to spread information efficiently via the edges the node is connected to. It is calculated as the inverse of the average shortest path between nodes.
+\end{verbatim}
+
+For instance, for node A (labelled 3), the closeness is
+1/((1+2+1+1+2+2+2+2+3))=0.0625. The higher the number, the closer the
+node is to the center based on distance. See appendix For details
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{graph\_from\_data\_frame}\NormalTok{(edges, }\AttributeTok{vertices =}\NormalTok{ nodes) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as\_tbl\_graph}\NormalTok{(}\AttributeTok{directed=}\ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ g }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{degree =} \FunctionTok{centrality\_closeness}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(edges)}
+
+\NormalTok{tg\_nodes }\OtherTok{\textless{}{-}}
+\NormalTok{  g }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{data.frame}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(degree)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Centrality\_Closeness=}\NormalTok{degree) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{name=}\FunctionTok{as.integer}\NormalTok{(name))}
+
+\NormalTok{nodes\_all }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{left\_join}\NormalTok{(tg\_nodes,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"id"}\OtherTok{=}\StringTok{"name"}\NormalTok{)) }
+\FunctionTok{remove}\NormalTok{(g,tg\_nodes)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{betweenness-centrality}{%
+\subsubsection{3.3 Betweenness
+centrality}\label{betweenness-centrality}}
+
+A measure that detects a node's influence over the flow of information
+within a graph. This is the sum of the shortest paths between two points
+i and j divided by the number of shortest paths that pass-through node
+v.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{graph\_from\_data\_frame}\NormalTok{(edges, }\AttributeTok{vertices =}\NormalTok{ nodes) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as\_tbl\_graph}\NormalTok{(}\AttributeTok{directed=}\ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{g }\OtherTok{\textless{}{-}}\NormalTok{ g }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{degree =} \FunctionTok{centrality\_betweenness}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{activate}\NormalTok{(edges)}
+
+\NormalTok{tg\_nodes }\OtherTok{\textless{}{-}}
+\NormalTok{  g }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{activate}\NormalTok{(nodes) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{data.frame}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(degree)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Centrality\_Betweenness=}\NormalTok{degree) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{name=}\FunctionTok{as.integer}\NormalTok{(name))}
+
+\NormalTok{nodes\_all }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{left\_join}\NormalTok{(tg\_nodes,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"id"}\OtherTok{=}\StringTok{"name"}\NormalTok{)) }
+\FunctionTok{remove}\NormalTok{(g,tg\_nodes)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{visualize-all-together}{%
+\subsection{Visualize all together}\label{visualize-all-together}}
+
+LEt's put all the data together now!
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nodes }\OtherTok{\textless{}{-}}\NormalTok{ nodes\_all }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(subset\_exam\_id,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"id"}\OtherTok{=}\StringTok{"examiner\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{label =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Examiner:"}\NormalTok{,id,}\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+                      \StringTok{"Centrality Degre:"}\NormalTok{,}\FunctionTok{format}\NormalTok{(Centrality\_Degree, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{),}\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+                      \StringTok{"Closenness:"}\NormalTok{,}\FunctionTok{format}\NormalTok{(Centrality\_Closeness, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{),}\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+                      \StringTok{"Betweenness:"}\NormalTok{,}\FunctionTok{format}\NormalTok{(Centrality\_Betweenness, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{),}\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+                      \AttributeTok{sep =} \StringTok{" "}\NormalTok{),}
+         \AttributeTok{group=}\NormalTok{work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{font.size =} \DecValTok{12}\NormalTok{) }
+
+\FunctionTok{visNetwork}\NormalTok{(nodes, edges)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visLegend}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visEdges}\NormalTok{(}\AttributeTok{arrows =}\StringTok{"to"}\NormalTok{)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{visEdges}\NormalTok{(}\AttributeTok{arrows =}\StringTok{"from"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\hypertarget{igraph-version}{%
+\subsection{Igraph version}\label{igraph-version}}
+
+labels must be removed for igraph or else it does not work well.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{net }\OtherTok{\textless{}{-}}\NormalTok{ igraph}\SpecialCharTok{::}\FunctionTok{graph\_from\_data\_frame}\NormalTok{(edges, }\AttributeTok{vertices =}\NormalTok{ nodes\_all) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as\_tbl\_graph}\NormalTok{(}\AttributeTok{directed=}\ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{plot}\NormalTok{(net, }\AttributeTok{edge.arrow.size=}\NormalTok{.}\DecValTok{4}\NormalTok{,}\AttributeTok{vertex.label=}\ConstantTok{NA}\NormalTok{,}\AttributeTok{vertex.size=}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(net, }\AttributeTok{edge.arrow.size=}\NormalTok{.}\DecValTok{4}\NormalTok{,}\AttributeTok{vertex.label.cex=}\NormalTok{.}\DecValTok{4}\NormalTok{,}\AttributeTok{vertex.label.dist=}\DecValTok{1}\NormalTok{,}\AttributeTok{vertex.size=}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Ex3_files/figure-latex/unnamed-chunk-7-2.pdf}
+
+\hypertarget{appendix}{%
+\subsection{appendix}\label{appendix}}
+
+testing to make sure examiners in edges data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test}\OtherTok{\textless{}{-}}\FunctionTok{merge}\NormalTok{(edges,person\_level\_data,}\AttributeTok{by.x=}\StringTok{"to"}\NormalTok{,}\AttributeTok{by.y=}\StringTok{"examiner\_id"}\NormalTok{)}
+\NormalTok{test }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(work\_group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(n))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 27 x 2
+## # Groups:   work_group [27]
+##    work_group     n
+##    <fct>      <int>
+##  1 2130         223
+##  2 1610         214
+##  3 2110          66
+##  4 2180          27
+##  5 2400          26
+##  6 1710          16
+##  7 2120          14
+##  8 1630          13
+##  9 2150          12
+## 10 1600          11
+## # ... with 17 more rows
+\end{verbatim}
+
+Nodes and edges mismatch solving
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test }\OtherTok{\textless{}{-}}\NormalTok{ edges }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(from }\SpecialCharTok{\%in\%}\NormalTok{ nodes}\SpecialCharTok{$}\NormalTok{id)}
+
+\NormalTok{test }\OtherTok{\textless{}{-}}\NormalTok{ edges }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(from }\SpecialCharTok{\%in\%}\NormalTok{ nodes}\SpecialCharTok{$}\NormalTok{id }\SpecialCharTok{|}\NormalTok{ to }\SpecialCharTok{\%in\%}\NormalTok{ nodes}\SpecialCharTok{$}\NormalTok{id)}
+
+\NormalTok{test }\OtherTok{\textless{}{-}}\NormalTok{ nodes }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(id }\SpecialCharTok{\%in\%}\NormalTok{ edges}\SpecialCharTok{$}\NormalTok{to)}
+
+
+\NormalTok{edges[(}\SpecialCharTok{!}\NormalTok{edges}\SpecialCharTok{$}\NormalTok{from }\SpecialCharTok{\%in\%}\NormalTok{ nodes\_all}\SpecialCharTok{$}\NormalTok{id) ,]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 0 x 2
+## # ... with 2 variables: from <dbl>, to <dbl>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{edges[(}\SpecialCharTok{!}\NormalTok{edges}\SpecialCharTok{$}\NormalTok{to }\SpecialCharTok{\%in\%}\NormalTok{ nodes\_all}\SpecialCharTok{$}\NormalTok{id) ,]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 0 x 2
+## # ... with 2 variables: from <dbl>, to <dbl>
+\end{verbatim}
+
+\end{document}

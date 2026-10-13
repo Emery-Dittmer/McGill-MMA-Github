@@ -1,0 +1,528 @@
+---
+title: "Assignment 2"
+author: "Emery Dittmer"
+date: '2023-03-09'
+always_allow_html: true
+output:
+  pdf_document: default
+  md_document: default
+  github_document: default
+---
+```{r setup, include=FALSE}
+knitr::include_graphics
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Excercise #2
+For this exercise we are investigating the idea of centrality in networks. We will look at what seat or position that we should sit on for the bus ride to Fakebook from downtown San Francisco! We can network with the people in our immediate area but not outside of that.
+
+## 1. Context & Modeling
+
+### 1.1 Problem Description
+For this problem, we will be a summer intern at Fakebook. This intern takes a bus every morning from San Francisco to Menlo park. When he boards the bus, there are 4 empty seats (labelled A-D). However, not all of these seats are equal.
+Anyone on the bus can form connections with their nearest neighbors who are in front, behind, to the side or diagonal from each other. Our goal is to sit in the seat that is the most advantageous to us. Let’s assume that seats with a lot of contact or centrality will be the most advantageous. With this example, we will examine network centrality to determine which seats have the most prominent centrality. 
+We have the following image to base our network and centrality measures off of.
+
+
+<center>
+![Bus Network Illustartion.](Bus.png)
+</center>
+
+### 1.2 Assumptions
+
+To simplify the problem, we will use several assumptions that are listed here:
+
+-1.	We will use a grid to model this problem with 3 types of seats:
+a.	No Seat: defines a position on the bus that is not a seat. The cabin for the driver or engine take up these spots.
+b.	Occupied: a seat that exists but is currently occupied
+c.	Available: an available seat to be sat in. These are the choice nodes we have.
+
+-2.	We will assume that all the seats will be occupied. Therefore, we will set the weight of each edge from available seats to 100%, even if the seat is currently available.
+
+-3.	We will assume that the alley for walking that divides the seats does not exist. We will not need to account for the small extra distance between seats D and 6.
+
+
+```{r import pacakges}
+
+#install.packages("gt")
+#install.packages("gtExtras")
+
+library(gt)
+library(gtExtras)
+library(visNetwork)
+library(networkD3)
+library(ggplot2)
+library(dplyr)
+library(cluster)
+library(tidyverse)
+library(igraph)
+library(tidygraph)
+```
+
+### 1.3	Data Collection: Making a bus coordinate system
+
+No csv, or other data exists; however, based on the image above, we can form a coordinate grid to model the bus. A 4x6 grid will model the bus sufficiently for our purposes. However, some coordinates in this grid are not actual seats; worse still, some are already occupied. 
+To correctly represent the situation, we need to label the seats and remove unneeded seats. We will label the seats as either available, occupied or no seat to differentiate the seats (nodes) within the bus (network). Then we will remove the points that do not actually sit. Lastly, we will index or create arbitrary seat ids for modelling purposes. 
+
+
+```{r Set coordinates}
+#These are the seats withi the rows
+x_dimention=4
+#These are the number of rows on the bus
+y_dimention=6
+avail='Available'
+
+Coords <- data.frame(
+   Seat = rep(c(1:x_dimention),times=y_dimention), 
+   Row = rep(c(1:y_dimention),each=x_dimention),
+   Status=rep(avail,x_dimention*y_dimention)
+   )
+ggplot(data=Coords,aes(x=Seat,y=Row))+
+  geom_point(aes(color = Status),size=10)+
+  labs(title="Gid of Bus no modification")
+
+#set some conditions First un-available (non existent seats)
+unavail="No Seat"
+#remove non existant seats on left
+Coords$Status[Coords$Row != 5 & Coords$Seat == 1] <- unavail
+#remove on right
+Coords$Status[(Coords$Row != 5 & Coords$Seat == 4)] <- unavail
+#remove driver cabin
+Coords$Status[(Coords$Row < 4 & Coords$Seat > 2)] <- unavail
+#remove seats over engine
+Coords$Status[(Coords$Row == 6 & Coords$Seat > 2)] <- unavail
+
+#now lets mark the occupied or taken seats
+taken="Occupied"
+#first two rows and last row 
+Coords$Status[(Coords$Row <3 | Coords$Row >5) & Coords$Status == 'Available' ] <- taken
+#seat number on on the left side
+Coords$Status[Coords$Seat <2 & Coords$Status == 'Available' ] <- taken
+#seat number on on the left side
+Coords$Status[Coords$Seat >2 & Coords$Status == 'Available' & Coords$Row >4 ] <- taken
+```
+
+Let's take a look at our data!
+
+```{r plot seats}
+#plotting the seats
+ggplot(data=Coords,aes(x=Seat,y=Row))+
+  geom_point(aes(shape = Status, color = Status),size=10)+
+  scale_shape_manual(values = c(19,4,15,1))+
+  scale_color_manual(values=c("#234F1E", "#E3242B","#FFA500"))+
+  labs(title="Gid of Bus with correctly labeld seat configuration")
+```
+
+Looks like we have our bus, the seats available and taken!
+Now lets filter our data frame to have only the useful coordinates, or seats that exist.
+```{r filter coordinates}
+
+Cords_Simple_Status <- Coords %>%
+  filter(Status != unavail) %>%
+  rename("Y" = "Row", "X"= "Seat")
+
+Cords_Simple <- Cords_Simple_Status[, c("X", "Y")]
+Cords_Simple_Status <- rowid_to_column(Cords_Simple_Status, "id")
+
+```
+
+let's remove the seats that do not actually exist.
+
+```{r plot seats 2}
+#plotting the seats
+ggplot(data=Cords_Simple_Status,aes(x=X,y=Y,color=Status,label=id))+
+  geom_point(size=10)+
+  geom_text(hjust=.5, vjust=0.5,color="white")+
+  scale_color_manual(values=c("#234F1E", "#FFA500", "#E3242B"))+
+  labs(title="Gid of Bus with 'no seat' removed")
+
+Cords_Simple_Status <- Cords_Simple_Status %>%
+  select(-id)
+```
+
+We have a simplified coordinate system with the existing seats. We will need all of this information to compute the degree of centrality for each seat, which we can then filter out.
+
+### 1.4 Transformations to Data
+
+Centrality indicates the influence of a node in a network. Higher centrality means higher influence. Therefore for this problem we would want higher centrality. Special considerations and data transformation
+
+### Distance Matrix Transformations
+We will need to look at the distance between each seat to see which seats can form connection with others. Ultimately we will find the most central in our network.
+
+```{r euclidian distance}
+
+##  Dissimilarities using Euclidean metric
+dist_seats <- daisy(Cords_Simple, metric = "euclidean")
+#convert matrix to dataframe
+dist_seats=as.data.frame(as.matrix(dist_seats))
+
+dist_seats %>% gt
+
+#bind the status and coords to each row
+dist_seats=cbind(Cords_Simple_Status,dist_seats)
+
+#pivot to make into tabular form
+dist_seats <- dist_seats %>% 
+  pivot_longer(where(is.numeric) & (!contains(c("X","Y"))),names_to = "to_seat_id")
+
+#quick change the name of value to distance
+dist_seats <- dist_seats %>%
+  rename("Distance" = "value")
+
+#get the from seat id
+lcords=nrow(Cords_Simple_Status)
+dist_seats <- cbind(from_seat_id = rep(c(1:lcords),each=lcords), dist_seats)
+
+# #reciprocal relationship we need to remove
+# lrow=nrow(dist_seats)
+# dist_seats <- dist_seats[1:(lrow/2),]
+
+#remove all duplicated rows 55 of them (10 choose 2 is 45)
+dist_seats=unique(dist_seats) 
+
+#remove all the self relationships and if the seat is taken
+dist_seats <- dist_seats %>% 
+  filter(to_seat_id != from_seat_id)
+  #filter(Status != taken)
+
+head(dist_seats) %>%gt
+```
+
+This is just a sample, but the table overall contains all the distances between seats.
+
+Now we have the distance between each of the available seats and the taken or occupied seats. We just need to apply the rules of connections (diagonal, front,back, ect) and we will be able to summarize the table to get the strength of each seat based on the connections. We will filter all of the connections who are further than sqrt 2 away from the current seat
+``` {r  name="summarize table 1"}
+#get all connections within distance
+dist_seats <- dist_seats %>%
+  filter(Distance <= sqrt(2)) %>%
+  rename(from = from_seat_id , to = to_seat_id)
+
+#removing the reciprocals
+dist_seats$to <- as.numeric(dist_seats$to)
+d1 <- as.data.frame(t(apply(dist_seats, 1, sort)))
+dist_seats <- dist_seats[!duplicated(d1),]
+
+head(dist_seats,5) %>% gt
+```
+
+Now we have the final distance tables. We can begin the transformation of data to edges and nodes.
+
+``` {r , name="summarize table 1"}
+
+
+
+#Create the degree of centrality of the seat values. We are using dist_seats which accounts for the open seats only since we don't care about the occupied seats.
+seat_vals <- dist_seats %>%
+  group_by(from) %>%
+  summarize(value=n())
+
+
+#crete the edges
+edges <- unique(select(dist_seats, from, to))
+edges$to <- as.numeric(edges$to)
+#remove the recipricals
+d1 <- as.data.frame(t(apply(edges, 1, sort)))
+edges <- edges[!duplicated(d1),]
+
+
+#create the nodes
+nodes <- Cords_Simple_Status
+nodes <- rowid_to_column(nodes, "id")
+nodes <- nodes %>% 
+  left_join(seat_vals, by = c("id" = "from")) %>%
+  replace(is.na(.),1)
+nodes$name <- as.character(nodes$id)
+nodes <- nodes %>% 
+  mutate(title = paste("Coords:",paste(X, Y,sep=","),"ID:",id,"size:",value, sep = " ")) %>%
+  rename(group = Status,label = name) 
+
+
+
+visNetwork(nodes, edges)%>%
+  visGroups(groupname=avail, color="#234F1E") %>%
+  visGroups(groupname=taken, color="#FFA500")  %>%
+  visLegend()
+
+# dist_seats$to = as.numeric(dist_seats$to)
+# dist_seats_test <- dist_seats %>% 
+#   left_join(nodes,by=c('to'='id'))
+# 
+# ggplot(data=dist_seats,aes(x=X,y=Y,group=to,label=from))+
+#   geom_point(aes(color = Status),size=10)+
+#   geom_line()+
+#   geom_text(hjust=0, vjust=0)
+
+```
+
+
+
+Now let's try to find the measures for each seat
+## 2. Centrality Measures
+
+### 2.1 Degree Centrality
+The count of the number of links each node has to other nodes. 
+For instance, seat A(labelled as 3 above) has a degree centrality of 3 since it is connected to 3 other nodes: 2, B & C (B labelled as 4 and C labelled as 5 above)
+
+
+```{r degree centrality}
+#attach(mtcars)
+#relabel seats
+seat_labs <- data.frame(
+  label=c(1,2,"A","B","C",3,"D",4,5,6),
+  seat_id=c(1,2,3,4,5,6,7,8,9,10)
+   )
+
+seat_vals_table <- seat_vals %>% 
+  rename(seat_id = from) %>%
+  right_join(seat_labs,by='seat_id') %>%
+  rename(Seat = label,Degree_Centrality = value) %>%
+  select(-seat_id)
+
+#formaint to make it look nice
+seat_vals_table <- seat_vals_table[, c("Seat", "Degree_Centrality")]
+seat_vals_table = seat_vals_table[order(-seat_vals_table$Degree_Centrality),]
+seat_vals_table %>%
+  filter (Seat %in% c("A","B","C","D")) %>%
+  gt
+``` 
+
+We can validate this with the igraph package wich has a built in functionality for centrality degree
+```{r degree central igraph}
+g = tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_degree()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  rownames_to_column("rowid") %>%
+  mutate(rowid = as.integer(rowid)) %>%
+  arrange(desc(degree)) %>%
+  rename( seat_id = id , Centrality_Degree=degree, id2= label)
+
+
+
+#data cleaning
+seat_vals_table <- tg_nodes %>% 
+  left_join(seat_labs,by='seat_id') %>%
+  rename(Seat = label) %>%
+  select(Seat,Centrality_Degree
+)
+
+seat_vals_table <- seat_vals_table[, c("Seat", "Centrality_Degree")]
+
+degree_table=seat_vals_table
+
+
+#data output
+seat_vals_table %>%
+  filter (Seat %in% c("A","B","C","D")) %>%
+  gt
+
+Cords_Simple_Status <- rowid_to_column(Cords_Simple_Status, "id")
+Cords_Simple_Status_vis <- Cords_Simple_Status %>%
+  left_join(tg_nodes,by=c("id"="rowid"))
+
+ggplot(data=Cords_Simple_Status_vis,aes(x=X.x,y=Y.x,color=Status))+
+  geom_point(aes(size=Centrality_Degree))+
+  labs(title="Seats centrality degree")
+```
+
+There is agreement between our calculations and the calculations for the package therefore we can use them!
+
+### 2.2 Closeness centrality
+	A measure that calculates the ability to spread information efficiently via the edges the node is connected to. It is calculated as the inverse of the average shortest path between nodes.
+	
+For instance, for node A (labelled 3), the closeness is 1/((1+2+1+1+2+2+2+2+3))=0.0625. The higher the number, the closer the node is to the center based on distance. See appendix For details
+
+```{r closeness centrality}
+g = tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_closeness()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  rownames_to_column("rowid") %>%
+  mutate(rowid = as.integer(rowid)) %>%
+  arrange(desc(degree)) %>%
+  rename( seat_id = id , Centrality_Degree=degree, id2= label)
+
+
+
+#data cleaning
+seat_vals_table <- tg_nodes %>% 
+  left_join(seat_labs,by='seat_id') %>%
+  rename(Seat = label,Closeness_Degree= Centrality_Degree) %>%
+  select(Seat,Closeness_Degree)
+
+seat_vals_table <- seat_vals_table[, c("Seat", "Closeness_Degree")]
+
+closeness_table=seat_vals_table
+
+#data output
+seat_vals_table%>%
+ filter (Seat %in% c("A","B","C","D")) %>% 
+  gt
+
+#visulize
+Cords_Simple_Status_vis <- Cords_Simple_Status %>%
+  left_join(tg_nodes,by=c("id"="rowid"))
+
+ggplot(data=Cords_Simple_Status_vis,aes(x=X.x,y=Y.x,color=Status))+
+  geom_point(aes(size=Centrality_Degree))+
+  labs(title="Seats Closeness Centrality Scores")
+```
+
+### 2.3 Betweenness centrality
+A measure that detects a node’s influence over the flow of information within a graph. This is the sum of the shortest paths between two points i and j divided by the number of shortest paths that pass-through node v.
+
+```{r betweeness centrality}
+g = tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+g <- g %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_betweenness()) %>% 
+  activate(edges)
+
+tg_nodes <-
+  g %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  rownames_to_column("rowid") %>%
+  mutate(rowid = as.integer(rowid)) %>%
+  arrange(desc(degree)) %>%
+  rename( seat_id = id , Centrality_Degree=degree, id2= label)
+
+
+
+#data cleaning
+seat_vals_table <- tg_nodes %>% 
+  left_join(seat_labs,by='seat_id') %>%
+  rename(Seat = label,Betweenness_Degree= Centrality_Degree) %>%
+  select(Seat,Betweenness_Degree
+)
+
+seat_vals_table <- seat_vals_table[, c("Seat", "Betweenness_Degree")]
+
+betweeness_table=seat_vals_table 
+
+
+#data output
+seat_vals_table %>%
+  filter (Seat %in% c("A","B","C","D"))  %>%
+  gt
+
+
+Cords_Simple_Status_vis <- Cords_Simple_Status %>%
+  left_join(tg_nodes,by=c("id"="rowid"))
+
+ggplot(data=Cords_Simple_Status_vis,aes(x=X.x,y=Y.x,color=Status))+
+  geom_point(aes(size=Centrality_Degree))+
+  labs(title="Seat Betweenness Centrality Scores")
+```
+
+
+### Comparison between all 3!
+Let's compare the centrality of all 3 measures
+```{r comparison table columns}
+fulltable <- degree_table %>%
+  inner_join(closeness_table,by = "Seat") %>%
+  inner_join(betweeness_table,by="Seat")
+
+fulltable %>%
+  filter (Seat %in% c("A","B","C","D")) %>%
+  gt() 
+```
+
+It looks like Seat B may be the best
+```{r comparison table columns with highlighting}
+fulltable %>% 
+  filter (Seat %in% c("A","B","C","D")) %>%
+  gt() %>%
+  gt_highlight_rows(rows = 1, font_weight = "normal")
+```
+
+## 3.Discussion
+
+While we have measured each seat's centrality and plotted the network diagram, we need to consider the consequences of the seat choice. 
+The primary goal is to leverage this opportunity to form connections. The connections will likely become valuable when looking for future employment, future progression or to have a colleague/friend you can rely on. We will aim to pick a seat that has connections with people. A seat without any links isolates us and removes us from the network.
+The potential consequences of the seat selection are a network size that may be smaller or larger, a potential utility within the network (conveyor of information) and recognition. In other words, if a seat has more connections, your possible network is larger than other seats. If your seat is between two friends, you will be in the middle of their conversation or convey information and thus become associated with the network. For instance, seat 3 in the problem has side to side connection with seat D and 4, whereas seat 4 is only connected to seat 3 
+From this perspective, there are two intuitive solutions: create the most significant number of relationships or create a few strong connections. These two perspectives are equally valid.
+We can be in a seat with the greatest number of connections, thereby becoming friendly with many people or choose a specific seat that allows us to make fewer connections. The benefit of picking a seat with fewer connections is that you grow the strength of your network. A strong network gives you access to a more intimate side of friends, who can help with roles, advocate for you or serve as mentors. From a growth perspective, these are valuable people in a network and are likely to help grow a network.
+ The tradeoff of a smaller network is that while your connections may be strong, there are fewer of them, and your network will be smaller. A larger network of “weak” connections is a tradeoff. Implicitly strong connections sound more desirable,  but counterintuitively weak ties have more power for securing future roles, according to David Easley and Jon Kleinberg. We can borrow from the circles of knowledge and boundary of ignorance to explain this. As the circle of friends grows so does the boundary of friendship (friends of friends); assuming little overlap adding additional friends gives you access to a much larger network.
+
+<center>
+![circle of knowledge and boundry of ignorance.](Knowledge.png)
+</center>
+<center>
+![Growth of network illustration](Growth.png)
+</center>
+
+Therefore, based on the goal and the available seats, the best seat to take for this bus ride will be the one that maximizes the number of connections. Based on the centrality scores, seat B is the best seat to take. This seat is the most connected based on degree centrality and has a good balance of closeness and betweenness centrality. In this case, betweenness and connectedness centrality are not as important as degree centrality, as forming connections relies more on physical distance as represented by degree centrality.
+This, however, relies on the assumption that seats D, C and A are filled. If this assumption does not hold, then seat D is the best to pick.
+
+## 4. Final Visulizations
+
+Finally, we can visualize all nodes in the network with their respective labels and centrality degrees.
+
+```{r visnetwork final network}
+# seat_labs <- data.frame(
+#   label=c(1,2,"A","B","C",3,"D",4,5,6),
+#   seat_id=c(1,2,3,4,5,6,7,8,9,10)
+#    )
+
+#set the node titles to then plot
+nodes_test <- nodes %>% 
+  select(-label)%>%
+  left_join(seat_labs,by=c("id"="seat_id")) %>%
+  left_join(fulltable,by=c('label'='Seat')) %>%
+  mutate(name = paste("Seat:",label,"\n",
+                      "Centrality Degre:",format(Centrality_Degree, digits = 2),"\n",
+                      "Closenness:",format(Closeness_Degree, digits = 2),"\n",
+                      "Betweenness:",format(Betweenness_Degree, digits = 2),"\n",
+                      sep = " ")) %>%
+  rename(Seat_name = label,label = name)%>% 
+  mutate(font.size = 12)
+
+
+
+visNetwork(nodes_test, edges)%>%
+  visGroups(groupname=avail, color="#234F1E") %>%
+  visGroups(groupname=taken, color="#FFA500")  %>%
+  visLegend()
+
+```
+
+
+
+
+
+<!-- ```{r comparison table rows} -->
+<!-- fulltable=rbind(degree_table,setNames(closeness_table, names(degree_table)),setNames(betweeness_table, names(degree_table))) -->
+
+<!-- gtTable = gt(fulltable) %>% -->
+<!--   tab_row_group( -->
+<!--     label = "Centrality Degree", -->
+<!--     rows = 1:4 -->
+<!--   ) %>%  -->
+<!--   tab_row_group( -->
+<!--     label = "Closesness", -->
+<!--     rows = 5:8 -->
+<!--   )%>%  -->
+<!--   tab_row_group( -->
+<!--     label = "Betweeness", -->
+<!--     rows = 9:12 -->
+<!--   ) -->
+<!-- gtTable -->
+
+<!-- ``` -->

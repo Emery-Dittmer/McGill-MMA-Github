@@ -1,0 +1,142 @@
+---
+title: "Assignment_1"
+author: "Stephenson_William"
+date: '2023-03-09'
+output: 'pdf_document'
+---
+
+<h1> Assignment 1 
+
+For the first assignment in Organization network analysis, I analyzed my 
+LinkedIn connections to see how they realte with one another. Throughout this 
+I upload the document, identify what companies have teh most connections, and 
+then define the nodes and edges for this project.
+
+Finally I explore, with varying degrees of success, how to graph these 
+relationships.
+
+
+```{r}
+
+library(igraph)
+library(tidygraph)
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(ggraph)
+
+Connections <- read_csv("Connections.csv")
+View(Connections)
+
+
+Connections %>% 
+  count(Company, name = "Total_Count")
+
+```
+
+```{r}
+Connections$Label <- paste0(Connections$`First Name`, " ", substr(Connections$`Last Name`, 1, 1))
+
+```
+
+
+
+```{r}
+# Create nodes data frame
+nodes <- data.frame(name = unique(Connections$Label))
+
+# Create edges data frame
+edges <- Connections %>%
+  inner_join(Connections, by = "Company") %>%
+  filter(Label.x != Label.y) %>%
+  select(from = Label.x, to = Label.y)
+```
+
+
+```{r}
+# Create graph object
+g <- graph_from_data_frame(edges, vertices = nodes)
+
+# Optional: plot the graph
+plot(g, vertex.label = V(g)$name)
+```
+
+```{r}
+# Create tbl_graph object
+g2 <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+# Plot the graph
+g2 %>%
+   ggraph(layout = "kk") +
+   geom_edge_arc(colour= "grey",
+                 lineend = "round",
+                 strength = .1,
+                 alpha = .1) +
+   geom_node_text(aes(label = name), 
+                  repel = TRUE, 
+                  point.padding = unit(0.2, "lines"), 
+                  colour="red") +
+  theme_graph(background = "white") +
+  guides(edge_width = FALSE,
+         edge_alpha = FALSE) +
+  labs(title = "Will Stephenson LinkedIn Network Analysis",
+       subtitle = "How my first degree connections are connected to one another")
+
+```
+
+```{r}
+library(visNetwork)
+library(dplyr)
+
+# Read in the data from a CSV file
+Connections <- read.csv("Connections.csv")
+Connections$FullName <- paste(Connections$First.Name, Connections$Last.Name, sep = "_")
+
+# Define the nodes and edges
+nodes <- Connections %>%
+  select(FullName, Company) %>%
+  distinct(FullName, .keep_all = TRUE) %>%
+  mutate(id = FullName, label = FullName, title = Company)
+
+edges <- Connections %>%
+  filter(!is.na(Company)) %>%
+  group_by(Company) %>%
+  filter(n() > 1) %>%
+  select(FullName, Company) %>%
+  group_by(Company) %>%
+  mutate(from = FullName, to = Company)
+
+
+# Create the network graph
+visNetwork(nodes, edges, width = "100%") %>%
+  visOptions(highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE),
+             nodesIdSelection = TRUE, selectedBy = "Company") %>%
+  visNodes(color = list(background = "#A0CBE2"),
+           font = list(face = "verdana", size = 20)) %>%
+  visEdges(arrows = "edges") %>%
+  visGroups(groupname = "McMaster University", color = "maroon") %>%    # darkblue for group "A"
+  visGroups(groupname = "ArcelorMittal Dofasco", color = "orange")  %>%
+  visInteraction(navigationButtons = TRUE)
+```
+
+```{r}
+library(treemap)
+
+Connections <- Connections %>%
+  group_by(Company) %>%
+  mutate(Value = n()) %>%
+  ungroup()
+
+p <- treemap(Connections,
+            index=c("Company","Position"),
+            vSize="Value",
+            type="index",
+            palette = "Set2",
+            align.labels=list(
+              c("center", "center"), 
+              c("right", "bottom")
+            )  
+          )        
+
+```
+

@@ -1,0 +1,429 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "Environics Analytics", "label": "Environics Analytics", "shape": "dot", "title": "Environics Analytics Neighbors:\u003cbr\u003eSarah Greene\u003cbr\u003eSusan Oliver\u003cbr\u003eDaniel Heuman", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Daniel Heuman", "label": "Daniel Heuman", "shape": "dot", "title": "Daniel Heuman Neighbors:\u003cbr\u003eEnvironics Analytics", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Canadian Tire Corporation", "label": "Canadian Tire Corporation", "shape": "dot", "title": "Canadian Tire Corporation Neighbors:\u003cbr\u003eSwithin Aby\u003cbr\u003eKevin Ha\u003cbr\u003eJamil Khouri\u003cbr\u003eAhmad Dhanani\u003cbr\u003eScott Dowding", "value": 5}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Scott Dowding", "label": "Scott Dowding", "shape": "dot", "title": "Scott Dowding Neighbors:\u003cbr\u003eCanadian Tire Corporation", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "TELUS", "label": "TELUS", "shape": "dot", "title": "TELUS Neighbors:\u003cbr\u003eMelissa Palumbo\u003cbr\u003eTaju Punnoose", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Taju Punnoose", "label": "Taju Punnoose", "shape": "dot", "title": "Taju Punnoose Neighbors:\u003cbr\u003eTELUS", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jamil Khouri", "label": "Jamil Khouri", "shape": "dot", "title": "Jamil Khouri Neighbors:\u003cbr\u003eCanadian Tire Corporation", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Melissa Palumbo", "label": "Melissa Palumbo", "shape": "dot", "title": "Melissa Palumbo Neighbors:\u003cbr\u003eTELUS", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sarah Greene", "label": "Sarah Greene", "shape": "dot", "title": "Sarah Greene Neighbors:\u003cbr\u003eEnvironics Analytics", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Susan Oliver", "label": "Susan Oliver", "shape": "dot", "title": "Susan Oliver Neighbors:\u003cbr\u003eEnvironics Analytics", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ahmad Dhanani", "label": "Ahmad Dhanani", "shape": "dot", "title": "Ahmad Dhanani Neighbors:\u003cbr\u003eCanadian Tire Corporation", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Metrolinx", "label": "Metrolinx", "shape": "dot", "title": "Metrolinx Neighbors:\u003cbr\u003eMichal Bem\u003cbr\u003eCatalina Parada", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Michal Bem", "label": "Michal Bem", "shape": "dot", "title": "Michal Bem Neighbors:\u003cbr\u003eMetrolinx", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Manulife", "label": "Manulife", "shape": "dot", "title": "Manulife Neighbors:\u003cbr\u003eRamzi L. Kaiache, MBA, M.ENG\u003cbr\u003eMaria Katalina Perez\u003cbr\u003eAna Haider, CPA", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ramzi L. Kaiache, MBA, M.ENG", "label": "Ramzi L. Kaiache, MBA, M.ENG", "shape": "dot", "title": "Ramzi L. Kaiache, MBA, M.ENG Neighbors:\u003cbr\u003eManulife", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "IBM", "label": "IBM", "shape": "dot", "title": "IBM Neighbors:\u003cbr\u003eAnnie Lu\u003cbr\u003eManoviraj Singh\u003cbr\u003eStephanie Duguay", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Manoviraj Singh", "label": "Manoviraj Singh", "shape": "dot", "title": "Manoviraj Singh Neighbors:\u003cbr\u003eIBM", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Air Canada", "label": "Air Canada", "shape": "dot", "title": "Air Canada Neighbors:\u003cbr\u003eLucio Bustillo\u003cbr\u003eGr\u00e9goire Maillard\u003cbr\u003eCaroline Dietrich", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lucio Bustillo", "label": "Lucio Bustillo", "shape": "dot", "title": "Lucio Bustillo Neighbors:\u003cbr\u003eAir Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Caroline Dietrich", "label": "Caroline Dietrich", "shape": "dot", "title": "Caroline Dietrich Neighbors:\u003cbr\u003eAir Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Gr\u00e9goire Maillard", "label": "Gr\u00e9goire Maillard", "shape": "dot", "title": "Gr\u00e9goire Maillard Neighbors:\u003cbr\u003eAir Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Allianz Trade", "label": "Allianz Trade", "shape": "dot", "title": "Allianz Trade Neighbors:\u003cbr\u003eRobert L. Prattico\u003cbr\u003eBoqun Shu", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Robert L. Prattico", "label": "Robert L. Prattico", "shape": "dot", "title": "Robert L. Prattico Neighbors:\u003cbr\u003eAllianz Trade", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "L\u0027Or\u00e9al", "label": "L\u0027Or\u00e9al", "shape": "dot", "title": "L\u0027Or\u00e9al Neighbors:\u003cbr\u003eShanshan Lao\u003cbr\u003eSangwoo Park\u003cbr\u003eUtkarsh Nagpal\u003cbr\u003eTarek Cheaito", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Tarek Cheaito", "label": "Tarek Cheaito", "shape": "dot", "title": "Tarek Cheaito Neighbors:\u003cbr\u003eL\u0027Or\u00e9al", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "SNC-Lavalin", "label": "SNC-Lavalin", "shape": "dot", "title": "SNC-Lavalin Neighbors:\u003cbr\u003eEvgeny Mukaseev\u003cbr\u003eHeidi Klotz", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Heidi Klotz", "label": "Heidi Klotz", "shape": "dot", "title": "Heidi Klotz Neighbors:\u003cbr\u003eSNC-Lavalin", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "McGill University - Desautels Faculty of Management", "label": "McGill University - Desautels Faculty of Management", "shape": "dot", "title": "McGill University - Desautels Faculty of Management Neighbors:\u003cbr\u003eElisabeth Cyr\u003cbr\u003eMichael Murphy\u003cbr\u003eMonika Brozyna\u003cbr\u003eXiaoyu (Riley) Zhu, FRM\u003cbr\u003eElaine Pelletier \u003cbr\u003eAbhilasha Yadav\u003cbr\u003eHong Fei Jin\u003cbr\u003eShoeb Hosain\u003cbr\u003eJunru Wang\u003cbr\u003eXinyi Hu", "value": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Elaine Pelletier ", "label": "Elaine Pelletier ", "shape": "dot", "title": "Elaine Pelletier  Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Monika Brozyna", "label": "Monika Brozyna", "shape": "dot", "title": "Monika Brozyna Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Junru Wang", "label": "Junru Wang", "shape": "dot", "title": "Junru Wang Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Google", "label": "Google", "shape": "dot", "title": "Google Neighbors:\u003cbr\u003eAlex Eldemir\u003cbr\u003eChristopher Dittmer\u003cbr\u003eJL Mar\u00e9chaux\u003cbr\u003eCalypso Petit", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Calypso Petit", "label": "Calypso Petit", "shape": "dot", "title": "Calypso Petit Neighbors:\u003cbr\u003eGoogle", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Catalina Parada", "label": "Catalina Parada", "shape": "dot", "title": "Catalina Parada Neighbors:\u003cbr\u003eMetrolinx", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "JL Mar\u00e9chaux", "label": "JL Mar\u00e9chaux", "shape": "dot", "title": "JL Mar\u00e9chaux Neighbors:\u003cbr\u003eGoogle", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "CN", "label": "CN", "shape": "dot", "title": "CN Neighbors:\u003cbr\u003eAkash Rajain\u003cbr\u003eSteven Liang", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Akash Rajain", "label": "Akash Rajain", "shape": "dot", "title": "Akash Rajain Neighbors:\u003cbr\u003eCN", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Michael Murphy", "label": "Michael Murphy", "shape": "dot", "title": "Michael Murphy Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Allianz Trade in North America", "label": "Allianz Trade in North America", "shape": "dot", "title": "Allianz Trade in North America Neighbors:\u003cbr\u003eAlicia Chen\u003cbr\u003eRaman Vakil\u003cbr\u003ePriyanka Jahul", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Priyanka Jahul", "label": "Priyanka Jahul", "shape": "dot", "title": "Priyanka Jahul Neighbors:\u003cbr\u003eAllianz Trade in North America", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Xiaoyu (Riley) Zhu, FRM", "label": "Xiaoyu (Riley) Zhu, FRM", "shape": "dot", "title": "Xiaoyu (Riley) Zhu, FRM Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "BRP", "label": "BRP", "shape": "dot", "title": "BRP Neighbors:\u003cbr\u003eMohamad Dalati\u003cbr\u003eNilanjana Raghu\u003cbr\u003eChongho Pyo\u003cbr\u003eBen-Isaac Meiga", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chongho Pyo", "label": "Chongho Pyo", "shape": "dot", "title": "Chongho Pyo Neighbors:\u003cbr\u003eBRP", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "KPI Digital Solutions", "label": "KPI Digital Solutions", "shape": "dot", "title": "KPI Digital Solutions Neighbors:\u003cbr\u003eMengyuan (Dreama) Wang\u003cbr\u003eRohana Habib\u003cbr\u003eOscar Montemayor\u003cbr\u003eBenny Cohen\u003cbr\u003eNishi Nishi\u003cbr\u003eDivya  Jain\u003cbr\u003eJohn Nikolopoulos, MBA, M.Eng", "value": 7}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Divya  Jain", "label": "Divya  Jain", "shape": "dot", "title": "Divya  Jain Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "TD", "label": "TD", "shape": "dot", "title": "TD Neighbors:\u003cbr\u003eAmr Maraqa\u003cbr\u003eJulie  Chanzy\u003cbr\u003eHaoying Xu", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Julie  Chanzy", "label": "Julie  Chanzy", "shape": "dot", "title": "Julie  Chanzy Neighbors:\u003cbr\u003eTD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Benny Cohen", "label": "Benny Cohen", "shape": "dot", "title": "Benny Cohen Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "John Nikolopoulos, MBA, M.Eng", "label": "John Nikolopoulos, MBA, M.Eng", "shape": "dot", "title": "John Nikolopoulos, MBA, M.Eng Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Raman Vakil", "label": "Raman Vakil", "shape": "dot", "title": "Raman Vakil Neighbors:\u003cbr\u003eAllianz Trade in North America", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "BDC", "label": "BDC", "shape": "dot", "title": "BDC Neighbors:\u003cbr\u003eHimanshu Mayank\u003cbr\u003ePedro Jos\u00e9 Trujillo Mejia, CAMS\u003cbr\u003eMathilda (Zixuan) Zhang\u003cbr\u003eKristen Chen\u003cbr\u003eRuhi Mahendra\u003cbr\u003eHeidi Al Wakeel", "value": 6}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Heidi Al Wakeel", "label": "Heidi Al Wakeel", "shape": "dot", "title": "Heidi Al Wakeel Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Evgeny Mukaseev", "label": "Evgeny Mukaseev", "shape": "dot", "title": "Evgeny Mukaseev Neighbors:\u003cbr\u003eSNC-Lavalin", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Amr Maraqa", "label": "Amr Maraqa", "shape": "dot", "title": "Amr Maraqa Neighbors:\u003cbr\u003eTD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Abhilasha Yadav", "label": "Abhilasha Yadav", "shape": "dot", "title": "Abhilasha Yadav Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Elisabeth Cyr", "label": "Elisabeth Cyr", "shape": "dot", "title": "Elisabeth Cyr Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "PwC", "label": "PwC", "shape": "dot", "title": "PwC Neighbors:\u003cbr\u003eJason Stanley\u003cbr\u003eBrett Brezden, CPA\u003cbr\u003ePhil Bazinet\u003cbr\u003eChelsea Knuth\u003cbr\u003eScarlett Sheng, CPA\u003cbr\u003e\u00c9tienne Perron, CPA auditeur\u003cbr\u003eClarissa Lie\u003cbr\u003eAtul Arora, CPA, CA\u003cbr\u003eBrandon Siu\u003cbr\u003eChristine Ferris, CPA, CA, CIA\u003cbr\u003eSydney Gemin\u003cbr\u003eMarine Dutrisac Pineau, MAcc\u003cbr\u003eTomas Gordon Minnes\u003cbr\u003eKieran MacLeod, MSc\u003cbr\u003eMohammed Jaradat\u003cbr\u003eAmJad Mohamed\u003cbr\u003eOwen Berry", "value": 17}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jason Stanley", "label": "Jason Stanley", "shape": "dot", "title": "Jason Stanley Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Utkarsh Nagpal", "label": "Utkarsh Nagpal", "shape": "dot", "title": "Utkarsh Nagpal Neighbors:\u003cbr\u003eL\u0027Or\u00e9al", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Shoeb Hosain", "label": "Shoeb Hosain", "shape": "dot", "title": "Shoeb Hosain Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "McGill University", "label": "McGill University", "shape": "dot", "title": "McGill University Neighbors:\u003cbr\u003eJoy Bennett\u003cbr\u003ePhil Cimento\u003cbr\u003eAvinash Singh Sidhu", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Avinash Singh Sidhu", "label": "Avinash Singh Sidhu", "shape": "dot", "title": "Avinash Singh Sidhu Neighbors:\u003cbr\u003eMcGill University", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Deloitte", "label": "Deloitte", "shape": "dot", "title": "Deloitte Neighbors:\u003cbr\u003e\ud83d\udca1Jonathan Zhu\u003cbr\u003eMariana Tataryn\u003cbr\u003eRobert Curtis\u003cbr\u003eLaurence Cobo\u003cbr\u003eRachel Wills, CPA\u003cbr\u003eAlicia Chan, CSM", "value": 6}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Robert Curtis", "label": "Robert Curtis", "shape": "dot", "title": "Robert Curtis Neighbors:\u003cbr\u003eDeloitte", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Haoying Xu", "label": "Haoying Xu", "shape": "dot", "title": "Haoying Xu Neighbors:\u003cbr\u003eTD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kristen Chen", "label": "Kristen Chen", "shape": "dot", "title": "Kristen Chen Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Pratt \u0026 Whitney Canada", "label": "Pratt \u0026 Whitney Canada", "shape": "dot", "title": "Pratt \u0026 Whitney Canada Neighbors:\u003cbr\u003eYing-Fang (Ylfa) Liang\u003cbr\u003eEmma Soukiassian\u003cbr\u003eDarin Zlatarev\u003cbr\u003eMudit Aggarwal\u003cbr\u003eJiaying Yao", "value": 5}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Emma Soukiassian", "label": "Emma Soukiassian", "shape": "dot", "title": "Emma Soukiassian Neighbors:\u003cbr\u003ePratt \u0026 Whitney Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ben-Isaac Meiga", "label": "Ben-Isaac Meiga", "shape": "dot", "title": "Ben-Isaac Meiga Neighbors:\u003cbr\u003eBRP", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mathilda (Zixuan) Zhang", "label": "Mathilda (Zixuan) Zhang", "shape": "dot", "title": "Mathilda (Zixuan) Zhang Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Boqun Shu", "label": "Boqun Shu", "shape": "dot", "title": "Boqun Shu Neighbors:\u003cbr\u003eAllianz Trade", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Nilanjana Raghu", "label": "Nilanjana Raghu", "shape": "dot", "title": "Nilanjana Raghu Neighbors:\u003cbr\u003eBRP", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "CAE", "label": "CAE", "shape": "dot", "title": "CAE Neighbors:\u003cbr\u003eVibhu Bhardwaj\u003cbr\u003eXimena Rodr\u00edguez Miranda", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ximena Rodr\u00edguez Miranda", "label": "Ximena Rodr\u00edguez Miranda", "shape": "dot", "title": "Ximena Rodr\u00edguez Miranda Neighbors:\u003cbr\u003eCAE", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jiaying Yao", "label": "Jiaying Yao", "shape": "dot", "title": "Jiaying Yao Neighbors:\u003cbr\u003ePratt \u0026 Whitney Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "label": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "shape": "dot", "title": "Pedro Jos\u00e9 Trujillo Mejia, CAMS Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Tomas Gordon Minnes", "label": "Tomas Gordon Minnes", "shape": "dot", "title": "Tomas Gordon Minnes Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mohamad Dalati", "label": "Mohamad Dalati", "shape": "dot", "title": "Mohamad Dalati Neighbors:\u003cbr\u003eBRP", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Oscar Montemayor", "label": "Oscar Montemayor", "shape": "dot", "title": "Oscar Montemayor Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alicia Chen", "label": "Alicia Chen", "shape": "dot", "title": "Alicia Chen Neighbors:\u003cbr\u003eAllianz Trade in North America", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Joy Bennett", "label": "Joy Bennett", "shape": "dot", "title": "Joy Bennett Neighbors:\u003cbr\u003eMcGill University", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Shanshan Lao", "label": "Shanshan Lao", "shape": "dot", "title": "Shanshan Lao Neighbors:\u003cbr\u003eL\u0027Or\u00e9al", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "PwC Canada", "label": "PwC Canada", "shape": "dot", "title": "PwC Canada Neighbors:\u003cbr\u003eSachin Ruparelia\u003cbr\u003eMarilia Araujo, PMP\u003cbr\u003eLawrence Lee\u003cbr\u003ePaolina de Zuttis, CPA, CIA\u003cbr\u003eAhmad Darwiche\u003cbr\u003eZarin Tasnim\u003cbr\u003eJonathan Koay, CPA, CAPM\u003cbr\u003eMartin J Ramonet\u003cbr\u003eIsabelle Roberge, CPA, CISA\u003cbr\u003eChimbo Mutuma II\u003cbr\u003eLian Yan\u003cbr\u003eSteve Marcotte\u003cbr\u003eTim McCormick\u003cbr\u003eBasel Abou Laban", "value": 14}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Zarin Tasnim", "label": "Zarin Tasnim", "shape": "dot", "title": "Zarin Tasnim Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Marilia Araujo, PMP", "label": "Marilia Araujo, PMP", "shape": "dot", "title": "Marilia Araujo, PMP Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Xinyi Hu", "label": "Xinyi Hu", "shape": "dot", "title": "Xinyi Hu Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Hong Fei Jin", "label": "Hong Fei Jin", "shape": "dot", "title": "Hong Fei Jin Neighbors:\u003cbr\u003eMcGill University - Desautels Faculty of Management", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Steven Liang", "label": "Steven Liang", "shape": "dot", "title": "Steven Liang Neighbors:\u003cbr\u003eCN", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mengyuan (Dreama) Wang", "label": "Mengyuan (Dreama) Wang", "shape": "dot", "title": "Mengyuan (Dreama) Wang Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ying-Fang (Ylfa) Liang", "label": "Ying-Fang (Ylfa) Liang", "shape": "dot", "title": "Ying-Fang (Ylfa) Liang Neighbors:\u003cbr\u003ePratt \u0026 Whitney Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Nishi Nishi", "label": "Nishi Nishi", "shape": "dot", "title": "Nishi Nishi Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Rohana Habib", "label": "Rohana Habib", "shape": "dot", "title": "Rohana Habib Neighbors:\u003cbr\u003eKPI Digital Solutions", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Darin Zlatarev", "label": "Darin Zlatarev", "shape": "dot", "title": "Darin Zlatarev Neighbors:\u003cbr\u003ePratt \u0026 Whitney Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Himanshu Mayank", "label": "Himanshu Mayank", "shape": "dot", "title": "Himanshu Mayank Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Vibhu Bhardwaj", "label": "Vibhu Bhardwaj", "shape": "dot", "title": "Vibhu Bhardwaj Neighbors:\u003cbr\u003eCAE", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lawrence Lee", "label": "Lawrence Lee", "shape": "dot", "title": "Lawrence Lee Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mudit Aggarwal", "label": "Mudit Aggarwal", "shape": "dot", "title": "Mudit Aggarwal Neighbors:\u003cbr\u003ePratt \u0026 Whitney Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "AmJad Mohamed", "label": "AmJad Mohamed", "shape": "dot", "title": "AmJad Mohamed Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brett Brezden, CPA", "label": "Brett Brezden, CPA", "shape": "dot", "title": "Brett Brezden, CPA Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sangwoo Park", "label": "Sangwoo Park", "shape": "dot", "title": "Sangwoo Park Neighbors:\u003cbr\u003eL\u0027Or\u00e9al", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ruhi Mahendra", "label": "Ruhi Mahendra", "shape": "dot", "title": "Ruhi Mahendra Neighbors:\u003cbr\u003eBDC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Deloitte Canada", "label": "Deloitte Canada", "shape": "dot", "title": "Deloitte Canada Neighbors:\u003cbr\u003eTene Knibbs, CPA, CMA\u003cbr\u003eJason Schwieg", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jason Schwieg", "label": "Jason Schwieg", "shape": "dot", "title": "Jason Schwieg Neighbors:\u003cbr\u003eDeloitte Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "KPMG Canada", "label": "KPMG Canada", "shape": "dot", "title": "KPMG Canada Neighbors:\u003cbr\u003eFr\u00e9d\u00e9ric LeBlond, CPA, CFE\u003cbr\u003eNg Hasanaj\u003cbr\u003eArlo Dempsey", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ng Hasanaj", "label": "Ng Hasanaj", "shape": "dot", "title": "Ng Hasanaj Neighbors:\u003cbr\u003eKPMG Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Tene Knibbs, CPA, CMA", "label": "Tene Knibbs, CPA, CMA", "shape": "dot", "title": "Tene Knibbs, CPA, CMA Neighbors:\u003cbr\u003eDeloitte Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Accenture", "label": "Accenture", "shape": "dot", "title": "Accenture Neighbors:\u003cbr\u003eElica Efremova\u003cbr\u003eEve Alezraa", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Elica Efremova", "label": "Elica Efremova", "shape": "dot", "title": "Elica Efremova Neighbors:\u003cbr\u003eAccenture", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chimbo Mutuma II", "label": "Chimbo Mutuma II", "shape": "dot", "title": "Chimbo Mutuma II Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kieran MacLeod, MSc", "label": "Kieran MacLeod, MSc", "shape": "dot", "title": "Kieran MacLeod, MSc Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Phil Bazinet", "label": "Phil Bazinet", "shape": "dot", "title": "Phil Bazinet Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chelsea Knuth", "label": "Chelsea Knuth", "shape": "dot", "title": "Chelsea Knuth Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lian Yan", "label": "Lian Yan", "shape": "dot", "title": "Lian Yan Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\u00c9tienne Perron, CPA auditeur", "label": "\u00c9tienne Perron, CPA auditeur", "shape": "dot", "title": "\u00c9tienne Perron, CPA auditeur Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sachin Ruparelia", "label": "Sachin Ruparelia", "shape": "dot", "title": "Sachin Ruparelia Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Atul Arora, CPA, CA", "label": "Atul Arora, CPA, CA", "shape": "dot", "title": "Atul Arora, CPA, CA Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mariana Tataryn", "label": "Mariana Tataryn", "shape": "dot", "title": "Mariana Tataryn Neighbors:\u003cbr\u003eDeloitte", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "RBC", "label": "RBC", "shape": "dot", "title": "RBC Neighbors:\u003cbr\u003eEmma Harman\u003cbr\u003eObafunto AyinOluwa, MMIE, CSPO\u003cbr\u003eBradley Henwood\u003cbr\u003eAmanda Spilker\u003cbr\u003eIbironke AyinOluwa\u003cbr\u003eBryanna Neuwald\u003cbr\u003eNatacha Lemay-Reaume\u003cbr\u003eKiara Ventulieri\u003cbr\u003eIfeoma Udo\u003cbr\u003eMehenaz Choudhry\u003cbr\u003eAndrea Young\u003cbr\u003eChristopher Cole\u003cbr\u003eDouglas McEwen\u003cbr\u003eKeren Yu\u003cbr\u003eGeorge Wamala\u003cbr\u003eRehana Ciriani\u003cbr\u003eThomas Golka\u003cbr\u003eNeil Kapoor\u003cbr\u003eHusam Al Dakhil, PFP\u00ae\u003cbr\u003eMuskan Seth\u003cbr\u003eMelody Zhao\u003cbr\u003eSian Rankin\u003cbr\u003eRuba Marar, MSc\u003cbr\u003eElliot Barry\u003cbr\u003eAlison Gibbins\u003cbr\u003eMike Ronchka\u003cbr\u003eRuva, Andrea-Nicole Chimbumu\u003cbr\u003eZohra Dewji\u003cbr\u003eTheodora Giovannelli\u003cbr\u003ePriya Patel, PMP\u003cbr\u003eMark Hamill\u003cbr\u003eMelissa Rose\u003cbr\u003eNicola Christie\u003cbr\u003eFrederick Hood\u003cbr\u003eGabrielle Davis\u003cbr\u003eArvind Ananthanarayanan\u003cbr\u003eTricia Johnson\u003cbr\u003eEmily Kovacs\u003cbr\u003eDeanna Mills\u003cbr\u003eHeidi Wildeman\u003cbr\u003eEmily Wright\u003cbr\u003eBreanna Ryan\u003cbr\u003eKaren Walker\u003cbr\u003eMourad Abdelmonem\u003cbr\u003eDanial Sonik, CSM, PMP.c", "value": 45}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ibironke AyinOluwa", "label": "Ibironke AyinOluwa", "shape": "dot", "title": "Ibironke AyinOluwa Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Scarlett Sheng, CPA", "label": "Scarlett Sheng, CPA", "shape": "dot", "title": "Scarlett Sheng, CPA Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Steve Marcotte", "label": "Steve Marcotte", "shape": "dot", "title": "Steve Marcotte Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Isabelle Roberge, CPA, CISA", "label": "Isabelle Roberge, CPA, CISA", "shape": "dot", "title": "Isabelle Roberge, CPA, CISA Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "label": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "shape": "dot", "title": "Export Development Canada | Exportation et d\u00e9veloppement Canada Neighbors:\u003cbr\u003eBrenda Sun\u003cbr\u003eAdib Hossain, CPA, MAcc", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brenda Sun", "label": "Brenda Sun", "shape": "dot", "title": "Brenda Sun Neighbors:\u003cbr\u003eExport Development Canada | Exportation et d\u00e9veloppement Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mohammed Jaradat", "label": "Mohammed Jaradat", "shape": "dot", "title": "Mohammed Jaradat Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Paolina de Zuttis, CPA, CIA", "label": "Paolina de Zuttis, CPA, CIA", "shape": "dot", "title": "Paolina de Zuttis, CPA, CIA Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ana Haider, CPA", "label": "Ana Haider, CPA", "shape": "dot", "title": "Ana Haider, CPA Neighbors:\u003cbr\u003eManulife", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Marine Dutrisac Pineau, MAcc", "label": "Marine Dutrisac Pineau, MAcc", "shape": "dot", "title": "Marine Dutrisac Pineau, MAcc Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Basel Abou Laban", "label": "Basel Abou Laban", "shape": "dot", "title": "Basel Abou Laban Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Christine Ferris, CPA, CA, CIA", "label": "Christine Ferris, CPA, CA, CIA", "shape": "dot", "title": "Christine Ferris, CPA, CA, CIA Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Martin J Ramonet", "label": "Martin J Ramonet", "shape": "dot", "title": "Martin J Ramonet Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Owen Berry", "label": "Owen Berry", "shape": "dot", "title": "Owen Berry Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Iridian Spectral Technologies", "label": "Iridian Spectral Technologies", "shape": "dot", "title": "Iridian Spectral Technologies Neighbors:\u003cbr\u003eRobert Woods\u003cbr\u003eHelen Slegr, M.A.Sc., P.Eng.\u003cbr\u003eJason Palidwar\u003cbr\u003eMark Donahue\u003cbr\u003eMonica Coyne", "value": 5}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mark Donahue", "label": "Mark Donahue", "shape": "dot", "title": "Mark Donahue Neighbors:\u003cbr\u003eIridian Spectral Technologies", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Adib Hossain, CPA, MAcc", "label": "Adib Hossain, CPA, MAcc", "shape": "dot", "title": "Adib Hossain, CPA, MAcc Neighbors:\u003cbr\u003eExport Development Canada | Exportation et d\u00e9veloppement Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "RBC Capital Markets", "label": "RBC Capital Markets", "shape": "dot", "title": "RBC Capital Markets Neighbors:\u003cbr\u003eAmrit Sandhu\u003cbr\u003eAdele Berrizbeitia\u003cbr\u003eJaea Zuo\u003cbr\u003eMia Miscevic\u003cbr\u003eReem Araia\u003cbr\u003eRachel Chui\u003cbr\u003eSana Saeed", "value": 7}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Amrit Sandhu", "label": "Amrit Sandhu", "shape": "dot", "title": "Amrit Sandhu Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Carleton University", "label": "Carleton University", "shape": "dot", "title": "Carleton University Neighbors:\u003cbr\u003eMelissa Robertson, CPA\u003cbr\u003eHamid Moradi", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Melissa Robertson, CPA", "label": "Melissa Robertson, CPA", "shape": "dot", "title": "Melissa Robertson, CPA Neighbors:\u003cbr\u003eCarleton University", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ahmad Darwiche", "label": "Ahmad Darwiche", "shape": "dot", "title": "Ahmad Darwiche Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brandon Siu", "label": "Brandon Siu", "shape": "dot", "title": "Brandon Siu Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Clarissa Lie", "label": "Clarissa Lie", "shape": "dot", "title": "Clarissa Lie Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Emma Harman", "label": "Emma Harman", "shape": "dot", "title": "Emma Harman Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jonathan Koay, CPA, CAPM", "label": "Jonathan Koay, CPA, CAPM", "shape": "dot", "title": "Jonathan Koay, CPA, CAPM Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Douglas McEwen", "label": "Douglas McEwen", "shape": "dot", "title": "Douglas McEwen Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Danial Sonik, CSM, PMP.c", "label": "Danial Sonik, CSM, PMP.c", "shape": "dot", "title": "Danial Sonik, CSM, PMP.c Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mehenaz Choudhry", "label": "Mehenaz Choudhry", "shape": "dot", "title": "Mehenaz Choudhry Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Arvind Ananthanarayanan", "label": "Arvind Ananthanarayanan", "shape": "dot", "title": "Arvind Ananthanarayanan Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Muskan Seth", "label": "Muskan Seth", "shape": "dot", "title": "Muskan Seth Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Obafunto AyinOluwa, MMIE, CSPO", "label": "Obafunto AyinOluwa, MMIE, CSPO", "shape": "dot", "title": "Obafunto AyinOluwa, MMIE, CSPO Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Amanda Spilker", "label": "Amanda Spilker", "shape": "dot", "title": "Amanda Spilker Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sian Rankin", "label": "Sian Rankin", "shape": "dot", "title": "Sian Rankin Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ruva, Andrea-Nicole Chimbumu", "label": "Ruva, Andrea-Nicole Chimbumu", "shape": "dot", "title": "Ruva, Andrea-Nicole Chimbumu Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Melissa Rose", "label": "Melissa Rose", "shape": "dot", "title": "Melissa Rose Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Tim McCormick", "label": "Tim McCormick", "shape": "dot", "title": "Tim McCormick Neighbors:\u003cbr\u003ePwC Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mark Hamill", "label": "Mark Hamill", "shape": "dot", "title": "Mark Hamill Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Tricia Johnson", "label": "Tricia Johnson", "shape": "dot", "title": "Tricia Johnson Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Emily Kovacs", "label": "Emily Kovacs", "shape": "dot", "title": "Emily Kovacs Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Deanna Mills", "label": "Deanna Mills", "shape": "dot", "title": "Deanna Mills Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Rachel Chui", "label": "Rachel Chui", "shape": "dot", "title": "Rachel Chui Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "George Wamala", "label": "George Wamala", "shape": "dot", "title": "George Wamala Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Maria Katalina Perez", "label": "Maria Katalina Perez", "shape": "dot", "title": "Maria Katalina Perez Neighbors:\u003cbr\u003eManulife", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Zohra Dewji", "label": "Zohra Dewji", "shape": "dot", "title": "Zohra Dewji Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sydney Gemin", "label": "Sydney Gemin", "shape": "dot", "title": "Sydney Gemin Neighbors:\u003cbr\u003ePwC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bradley Henwood", "label": "Bradley Henwood", "shape": "dot", "title": "Bradley Henwood Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "label": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "shape": "dot", "title": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario Neighbors:\u003cbr\u003eMark Belanger\u003cbr\u003eSue Hutton", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sue Hutton", "label": "Sue Hutton", "shape": "dot", "title": "Sue Hutton Neighbors:\u003cbr\u003eUnited Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Andrea Young", "label": "Andrea Young", "shape": "dot", "title": "Andrea Young Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bryanna Neuwald", "label": "Bryanna Neuwald", "shape": "dot", "title": "Bryanna Neuwald Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Husam Al Dakhil, PFP\u00ae", "label": "Husam Al Dakhil, PFP\u00ae", "shape": "dot", "title": "Husam Al Dakhil, PFP\u00ae Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mourad Abdelmonem", "label": "Mourad Abdelmonem", "shape": "dot", "title": "Mourad Abdelmonem Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "RBC Direct Investing", "label": "RBC Direct Investing", "shape": "dot", "title": "RBC Direct Investing Neighbors:\u003cbr\u003eHania Aymen\u003cbr\u003eMervyn Adams", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mervyn Adams", "label": "Mervyn Adams", "shape": "dot", "title": "Mervyn Adams Neighbors:\u003cbr\u003eRBC Direct Investing", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "CBRE", "label": "CBRE", "shape": "dot", "title": "CBRE Neighbors:\u003cbr\u003eLauren King\u003cbr\u003eKorey Sheppard-Greene", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lauren King", "label": "Lauren King", "shape": "dot", "title": "Lauren King Neighbors:\u003cbr\u003eCBRE", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mark Belanger", "label": "Mark Belanger", "shape": "dot", "title": "Mark Belanger Neighbors:\u003cbr\u003eUnited Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bell", "label": "Bell", "shape": "dot", "title": "Bell Neighbors:\u003cbr\u003eAlexandra Lee\u003cbr\u003eParag Dey\u003cbr\u003eFahad Alam Khan", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Parag Dey", "label": "Parag Dey", "shape": "dot", "title": "Parag Dey Neighbors:\u003cbr\u003eBell", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Keren Yu", "label": "Keren Yu", "shape": "dot", "title": "Keren Yu Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alison Gibbins", "label": "Alison Gibbins", "shape": "dot", "title": "Alison Gibbins Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mike Ronchka", "label": "Mike Ronchka", "shape": "dot", "title": "Mike Ronchka Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Emily Wright", "label": "Emily Wright", "shape": "dot", "title": "Emily Wright Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Hania Aymen", "label": "Hania Aymen", "shape": "dot", "title": "Hania Aymen Neighbors:\u003cbr\u003eRBC Direct Investing", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kiara Ventulieri", "label": "Kiara Ventulieri", "shape": "dot", "title": "Kiara Ventulieri Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "label": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "shape": "dot", "title": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE Neighbors:\u003cbr\u003eKPMG Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Neil Kapoor", "label": "Neil Kapoor", "shape": "dot", "title": "Neil Kapoor Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Breanna Ryan", "label": "Breanna Ryan", "shape": "dot", "title": "Breanna Ryan Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Phil Cimento", "label": "Phil Cimento", "shape": "dot", "title": "Phil Cimento Neighbors:\u003cbr\u003eMcGill University", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Nicola Christie", "label": "Nicola Christie", "shape": "dot", "title": "Nicola Christie Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Frederick Hood", "label": "Frederick Hood", "shape": "dot", "title": "Frederick Hood Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Melody Zhao", "label": "Melody Zhao", "shape": "dot", "title": "Melody Zhao Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Theodora Giovannelli", "label": "Theodora Giovannelli", "shape": "dot", "title": "Theodora Giovannelli Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Adele Berrizbeitia", "label": "Adele Berrizbeitia", "shape": "dot", "title": "Adele Berrizbeitia Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Christopher Cole", "label": "Christopher Cole", "shape": "dot", "title": "Christopher Cole Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alexandra Lee", "label": "Alexandra Lee", "shape": "dot", "title": "Alexandra Lee Neighbors:\u003cbr\u003eBell", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ifeoma Udo", "label": "Ifeoma Udo", "shape": "dot", "title": "Ifeoma Udo Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jaea Zuo", "label": "Jaea Zuo", "shape": "dot", "title": "Jaea Zuo Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sana Saeed", "label": "Sana Saeed", "shape": "dot", "title": "Sana Saeed Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mia Miscevic", "label": "Mia Miscevic", "shape": "dot", "title": "Mia Miscevic Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Heidi Wildeman", "label": "Heidi Wildeman", "shape": "dot", "title": "Heidi Wildeman Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Thomas Golka", "label": "Thomas Golka", "shape": "dot", "title": "Thomas Golka Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Reem Araia", "label": "Reem Araia", "shape": "dot", "title": "Reem Araia Neighbors:\u003cbr\u003eRBC Capital Markets", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Rehana Ciriani", "label": "Rehana Ciriani", "shape": "dot", "title": "Rehana Ciriani Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Karen Walker", "label": "Karen Walker", "shape": "dot", "title": "Karen Walker Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alicia Chan, CSM", "label": "Alicia Chan, CSM", "shape": "dot", "title": "Alicia Chan, CSM Neighbors:\u003cbr\u003eDeloitte", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ruba Marar, MSc", "label": "Ruba Marar, MSc", "shape": "dot", "title": "Ruba Marar, MSc Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Priya Patel, PMP", "label": "Priya Patel, PMP", "shape": "dot", "title": "Priya Patel, PMP Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ud83d\udca1Jonathan Zhu", "label": "\ud83d\udca1Jonathan Zhu", "shape": "dot", "title": "\ud83d\udca1Jonathan Zhu Neighbors:\u003cbr\u003eDeloitte", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Elliot Barry", "label": "Elliot Barry", "shape": "dot", "title": "Elliot Barry Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Korey Sheppard-Greene", "label": "Korey Sheppard-Greene", "shape": "dot", "title": "Korey Sheppard-Greene Neighbors:\u003cbr\u003eCBRE", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Philips", "label": "Philips", "shape": "dot", "title": "Philips Neighbors:\u003cbr\u003eBrian Butler\u003cbr\u003eTeymour Seif-El-Nasr\u003cbr\u003eJuan Tosto\u003cbr\u003eChris Balugay\u003cbr\u003eJoanne Pe\u00f1a", "value": 5}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Joanne Pe\u00f1a", "label": "Joanne Pe\u00f1a", "shape": "dot", "title": "Joanne Pe\u00f1a Neighbors:\u003cbr\u003ePhilips", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Gabrielle Davis", "label": "Gabrielle Davis", "shape": "dot", "title": "Gabrielle Davis Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Monica Coyne", "label": "Monica Coyne", "shape": "dot", "title": "Monica Coyne Neighbors:\u003cbr\u003eIridian Spectral Technologies", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Natacha Lemay-Reaume", "label": "Natacha Lemay-Reaume", "shape": "dot", "title": "Natacha Lemay-Reaume Neighbors:\u003cbr\u003eRBC", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Hamid Moradi", "label": "Hamid Moradi", "shape": "dot", "title": "Hamid Moradi Neighbors:\u003cbr\u003eCarleton University", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jason Palidwar", "label": "Jason Palidwar", "shape": "dot", "title": "Jason Palidwar Neighbors:\u003cbr\u003eIridian Spectral Technologies", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Robert Woods", "label": "Robert Woods", "shape": "dot", "title": "Robert Woods Neighbors:\u003cbr\u003eIridian Spectral Technologies", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Helen Slegr, M.A.Sc., P.Eng.", "label": "Helen Slegr, M.A.Sc., P.Eng.", "shape": "dot", "title": "Helen Slegr, M.A.Sc., P.Eng. Neighbors:\u003cbr\u003eIridian Spectral Technologies", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Annie Lu", "label": "Annie Lu", "shape": "dot", "title": "Annie Lu Neighbors:\u003cbr\u003eIBM", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fullscript", "label": "Fullscript", "shape": "dot", "title": "Fullscript Neighbors:\u003cbr\u003eJill Andrews\u003cbr\u003eJamie Burns\u003cbr\u003eAmanda Cummings", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jill Andrews", "label": "Jill Andrews", "shape": "dot", "title": "Jill Andrews Neighbors:\u003cbr\u003eFullscript", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jamie Burns", "label": "Jamie Burns", "shape": "dot", "title": "Jamie Burns Neighbors:\u003cbr\u003eFullscript", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Amanda Cummings", "label": "Amanda Cummings", "shape": "dot", "title": "Amanda Cummings Neighbors:\u003cbr\u003eFullscript", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Stephanie Duguay", "label": "Stephanie Duguay", "shape": "dot", "title": "Stephanie Duguay Neighbors:\u003cbr\u003eIBM", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Anheuser-Busch InBev", "label": "Anheuser-Busch InBev", "shape": "dot", "title": "Anheuser-Busch InBev Neighbors:\u003cbr\u003eJohn Shipp (He/Him)\u003cbr\u003eDevin Hastie", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Devin Hastie", "label": "Devin Hastie", "shape": "dot", "title": "Devin Hastie Neighbors:\u003cbr\u003eAnheuser-Busch InBev", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "John Shipp (He/Him)", "label": "John Shipp (He/Him)", "shape": "dot", "title": "John Shipp (He/Him) Neighbors:\u003cbr\u003eAnheuser-Busch InBev", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Arlo Dempsey", "label": "Arlo Dempsey", "shape": "dot", "title": "Arlo Dempsey Neighbors:\u003cbr\u003eKPMG Canada", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Self-Employed", "label": "Self-Employed", "shape": "dot", "title": "Self-Employed Neighbors:\u003cbr\u003eLaetitia Duler\u003cbr\u003eFlorence Jaffry Orsini", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Laetitia Duler", "label": "Laetitia Duler", "shape": "dot", "title": "Laetitia Duler Neighbors:\u003cbr\u003eSelf-Employed", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fahad Alam Khan", "label": "Fahad Alam Khan", "shape": "dot", "title": "Fahad Alam Khan Neighbors:\u003cbr\u003eBell", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Swithin Aby", "label": "Swithin Aby", "shape": "dot", "title": "Swithin Aby Neighbors:\u003cbr\u003eCanadian Tire Corporation", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brian Butler", "label": "Brian Butler", "shape": "dot", "title": "Brian Butler Neighbors:\u003cbr\u003ePhilips", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kevin Ha", "label": "Kevin Ha", "shape": "dot", "title": "Kevin Ha Neighbors:\u003cbr\u003eCanadian Tire Corporation", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chris Balugay", "label": "Chris Balugay", "shape": "dot", "title": "Chris Balugay Neighbors:\u003cbr\u003ePhilips", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Juan Tosto", "label": "Juan Tosto", "shape": "dot", "title": "Juan Tosto Neighbors:\u003cbr\u003ePhilips", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Christopher Dittmer", "label": "Christopher Dittmer", "shape": "dot", "title": "Christopher Dittmer Neighbors:\u003cbr\u003eGoogle", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Teymour Seif-El-Nasr", "label": "Teymour Seif-El-Nasr", "shape": "dot", "title": "Teymour Seif-El-Nasr Neighbors:\u003cbr\u003ePhilips", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "label": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "shape": "dot", "title": "Lyc\u00e9e Fran\u00e7ais de San Francisco Neighbors:\u003cbr\u003eGuillaume Lorget\u003cbr\u003eWilliam Desmole\u003cbr\u003eAnton Ritzu", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Anton Ritzu", "label": "Anton Ritzu", "shape": "dot", "title": "Anton Ritzu Neighbors:\u003cbr\u003eLyc\u00e9e Fran\u00e7ais de San Francisco", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Guillaume Lorget", "label": "Guillaume Lorget", "shape": "dot", "title": "Guillaume Lorget Neighbors:\u003cbr\u003eLyc\u00e9e Fran\u00e7ais de San Francisco", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alex Eldemir", "label": "Alex Eldemir", "shape": "dot", "title": "Alex Eldemir Neighbors:\u003cbr\u003eGoogle", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Eve Alezraa", "label": "Eve Alezraa", "shape": "dot", "title": "Eve Alezraa Neighbors:\u003cbr\u003eAccenture", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "William Desmole", "label": "William Desmole", "shape": "dot", "title": "William Desmole Neighbors:\u003cbr\u003eLyc\u00e9e Fran\u00e7ais de San Francisco", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Florence Jaffry Orsini", "label": "Florence Jaffry Orsini", "shape": "dot", "title": "Florence Jaffry Orsini Neighbors:\u003cbr\u003eSelf-Employed", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Rachel Wills, CPA", "label": "Rachel Wills, CPA", "shape": "dot", "title": "Rachel Wills, CPA Neighbors:\u003cbr\u003eDeloitte", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Laurence Cobo", "label": "Laurence Cobo", "shape": "dot", "title": "Laurence Cobo Neighbors:\u003cbr\u003eDeloitte", "value": 1}]);
+                  edges = new vis.DataSet([{"from": "Environics Analytics", "to": "Daniel Heuman", "value": 3}, {"from": "Canadian Tire Corporation", "to": "Scott Dowding", "value": 5}, {"from": "TELUS", "to": "Taju Punnoose", "value": 2}, {"from": "Canadian Tire Corporation", "to": "Jamil Khouri", "value": 5}, {"from": "TELUS", "to": "Melissa Palumbo", "value": 2}, {"from": "Environics Analytics", "to": "Sarah Greene", "value": 3}, {"from": "Environics Analytics", "to": "Susan Oliver", "value": 3}, {"from": "Canadian Tire Corporation", "to": "Ahmad Dhanani", "value": 5}, {"from": "Metrolinx", "to": "Michal Bem", "value": 2}, {"from": "Manulife", "to": "Ramzi L. Kaiache, MBA, M.ENG", "value": 3}, {"from": "IBM", "to": "Manoviraj Singh", "value": 3}, {"from": "Air Canada", "to": "Lucio Bustillo", "value": 3}, {"from": "Air Canada", "to": "Caroline Dietrich", "value": 3}, {"from": "Air Canada", "to": "Gr\u00e9goire Maillard", "value": 3}, {"from": "Allianz Trade", "to": "Robert L. Prattico", "value": 2}, {"from": "L\u0027Or\u00e9al", "to": "Tarek Cheaito", "value": 4}, {"from": "SNC-Lavalin", "to": "Heidi Klotz", "value": 2}, {"from": "McGill University - Desautels Faculty of Management", "to": "Elaine Pelletier ", "value": 10}, {"from": "McGill University - Desautels Faculty of Management", "to": "Monika Brozyna", "value": 10}, {"from": "McGill University - Desautels Faculty of Management", "to": "Junru Wang", "value": 10}, {"from": "Google", "to": "Calypso Petit", "value": 4}, {"from": "Metrolinx", "to": "Catalina Parada", "value": 2}, {"from": "Google", "to": "JL Mar\u00e9chaux", "value": 4}, {"from": "CN", "to": "Akash Rajain", "value": 2}, {"from": "McGill University - Desautels Faculty of Management", "to": "Michael Murphy", "value": 10}, {"from": "Allianz Trade in North America", "to": "Priyanka Jahul", "value": 3}, {"from": "McGill University - Desautels Faculty of Management", "to": "Xiaoyu (Riley) Zhu, FRM", "value": 10}, {"from": "BRP", "to": "Chongho Pyo", "value": 4}, {"from": "KPI Digital Solutions", "to": "Divya  Jain", "value": 7}, {"from": "TD", "to": "Julie  Chanzy", "value": 3}, {"from": "KPI Digital Solutions", "to": "Benny Cohen", "value": 7}, {"from": "KPI Digital Solutions", "to": "John Nikolopoulos, MBA, M.Eng", "value": 7}, {"from": "Allianz Trade in North America", "to": "Raman Vakil", "value": 3}, {"from": "BDC", "to": "Heidi Al Wakeel", "value": 6}, {"from": "SNC-Lavalin", "to": "Evgeny Mukaseev", "value": 2}, {"from": "TD", "to": "Amr Maraqa", "value": 3}, {"from": "McGill University - Desautels Faculty of Management", "to": "Abhilasha Yadav", "value": 10}, {"from": "McGill University - Desautels Faculty of Management", "to": "Elisabeth Cyr", "value": 10}, {"from": "PwC", "to": "Jason Stanley", "value": 17}, {"from": "L\u0027Or\u00e9al", "to": "Utkarsh Nagpal", "value": 4}, {"from": "McGill University - Desautels Faculty of Management", "to": "Shoeb Hosain", "value": 10}, {"from": "McGill University", "to": "Avinash Singh Sidhu", "value": 3}, {"from": "Deloitte", "to": "Robert Curtis", "value": 6}, {"from": "TD", "to": "Haoying Xu", "value": 3}, {"from": "BDC", "to": "Kristen Chen", "value": 6}, {"from": "Pratt \u0026 Whitney Canada", "to": "Emma Soukiassian", "value": 5}, {"from": "BRP", "to": "Ben-Isaac Meiga", "value": 4}, {"from": "BDC", "to": "Mathilda (Zixuan) Zhang", "value": 6}, {"from": "Allianz Trade", "to": "Boqun Shu", "value": 2}, {"from": "BRP", "to": "Nilanjana Raghu", "value": 4}, {"from": "CAE", "to": "Ximena Rodr\u00edguez Miranda", "value": 2}, {"from": "Pratt \u0026 Whitney Canada", "to": "Jiaying Yao", "value": 5}, {"from": "BDC", "to": "Pedro Jos\u00e9 Trujillo Mejia, CAMS", "value": 6}, {"from": "PwC", "to": "Tomas Gordon Minnes", "value": 17}, {"from": "BRP", "to": "Mohamad Dalati", "value": 4}, {"from": "KPI Digital Solutions", "to": "Oscar Montemayor", "value": 7}, {"from": "Allianz Trade in North America", "to": "Alicia Chen", "value": 3}, {"from": "McGill University", "to": "Joy Bennett", "value": 3}, {"from": "L\u0027Or\u00e9al", "to": "Shanshan Lao", "value": 4}, {"from": "PwC Canada", "to": "Zarin Tasnim", "value": 14}, {"from": "PwC Canada", "to": "Marilia Araujo, PMP", "value": 14}, {"from": "McGill University - Desautels Faculty of Management", "to": "Xinyi Hu", "value": 10}, {"from": "McGill University - Desautels Faculty of Management", "to": "Hong Fei Jin", "value": 10}, {"from": "CN", "to": "Steven Liang", "value": 2}, {"from": "KPI Digital Solutions", "to": "Mengyuan (Dreama) Wang", "value": 7}, {"from": "Pratt \u0026 Whitney Canada", "to": "Ying-Fang (Ylfa) Liang", "value": 5}, {"from": "KPI Digital Solutions", "to": "Nishi Nishi", "value": 7}, {"from": "KPI Digital Solutions", "to": "Rohana Habib", "value": 7}, {"from": "Pratt \u0026 Whitney Canada", "to": "Darin Zlatarev", "value": 5}, {"from": "BDC", "to": "Himanshu Mayank", "value": 6}, {"from": "CAE", "to": "Vibhu Bhardwaj", "value": 2}, {"from": "PwC Canada", "to": "Lawrence Lee", "value": 14}, {"from": "Pratt \u0026 Whitney Canada", "to": "Mudit Aggarwal", "value": 5}, {"from": "PwC", "to": "AmJad Mohamed", "value": 17}, {"from": "PwC", "to": "Brett Brezden, CPA", "value": 17}, {"from": "L\u0027Or\u00e9al", "to": "Sangwoo Park", "value": 4}, {"from": "BDC", "to": "Ruhi Mahendra", "value": 6}, {"from": "Deloitte Canada", "to": "Jason Schwieg", "value": 2}, {"from": "KPMG Canada", "to": "Ng Hasanaj", "value": 3}, {"from": "Deloitte Canada", "to": "Tene Knibbs, CPA, CMA", "value": 2}, {"from": "Accenture", "to": "Elica Efremova", "value": 2}, {"from": "PwC Canada", "to": "Chimbo Mutuma II", "value": 14}, {"from": "PwC", "to": "Kieran MacLeod, MSc", "value": 17}, {"from": "PwC", "to": "Phil Bazinet", "value": 17}, {"from": "PwC", "to": "Chelsea Knuth", "value": 17}, {"from": "PwC Canada", "to": "Lian Yan", "value": 14}, {"from": "PwC", "to": "\u00c9tienne Perron, CPA auditeur", "value": 17}, {"from": "PwC Canada", "to": "Sachin Ruparelia", "value": 14}, {"from": "PwC", "to": "Atul Arora, CPA, CA", "value": 17}, {"from": "Deloitte", "to": "Mariana Tataryn", "value": 6}, {"from": "RBC", "to": "Ibironke AyinOluwa", "value": 45}, {"from": "PwC", "to": "Scarlett Sheng, CPA", "value": 17}, {"from": "PwC Canada", "to": "Steve Marcotte", "value": 14}, {"from": "PwC Canada", "to": "Isabelle Roberge, CPA, CISA", "value": 14}, {"from": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "to": "Brenda Sun", "value": 2}, {"from": "PwC", "to": "Mohammed Jaradat", "value": 17}, {"from": "PwC Canada", "to": "Paolina de Zuttis, CPA, CIA", "value": 14}, {"from": "Manulife", "to": "Ana Haider, CPA", "value": 3}, {"from": "PwC", "to": "Marine Dutrisac Pineau, MAcc", "value": 17}, {"from": "PwC Canada", "to": "Basel Abou Laban", "value": 14}, {"from": "PwC", "to": "Christine Ferris, CPA, CA, CIA", "value": 17}, {"from": "PwC Canada", "to": "Martin J Ramonet", "value": 14}, {"from": "PwC", "to": "Owen Berry", "value": 17}, {"from": "Iridian Spectral Technologies", "to": "Mark Donahue", "value": 5}, {"from": "Export Development Canada | Exportation et d\u00e9veloppement Canada", "to": "Adib Hossain, CPA, MAcc", "value": 2}, {"from": "RBC Capital Markets", "to": "Amrit Sandhu", "value": 7}, {"from": "Carleton University", "to": "Melissa Robertson, CPA", "value": 2}, {"from": "PwC Canada", "to": "Ahmad Darwiche", "value": 14}, {"from": "PwC", "to": "Brandon Siu", "value": 17}, {"from": "PwC", "to": "Clarissa Lie", "value": 17}, {"from": "RBC", "to": "Emma Harman", "value": 45}, {"from": "PwC Canada", "to": "Jonathan Koay, CPA, CAPM", "value": 14}, {"from": "RBC", "to": "Douglas McEwen", "value": 45}, {"from": "RBC", "to": "Danial Sonik, CSM, PMP.c", "value": 45}, {"from": "RBC", "to": "Mehenaz Choudhry", "value": 45}, {"from": "RBC", "to": "Arvind Ananthanarayanan", "value": 45}, {"from": "RBC", "to": "Muskan Seth", "value": 45}, {"from": "RBC", "to": "Obafunto AyinOluwa, MMIE, CSPO", "value": 45}, {"from": "RBC", "to": "Amanda Spilker", "value": 45}, {"from": "RBC", "to": "Sian Rankin", "value": 45}, {"from": "RBC", "to": "Ruva, Andrea-Nicole Chimbumu", "value": 45}, {"from": "RBC", "to": "Melissa Rose", "value": 45}, {"from": "PwC Canada", "to": "Tim McCormick", "value": 14}, {"from": "RBC", "to": "Mark Hamill", "value": 45}, {"from": "RBC", "to": "Tricia Johnson", "value": 45}, {"from": "RBC", "to": "Emily Kovacs", "value": 45}, {"from": "RBC", "to": "Deanna Mills", "value": 45}, {"from": "RBC Capital Markets", "to": "Rachel Chui", "value": 7}, {"from": "RBC", "to": "George Wamala", "value": 45}, {"from": "Manulife", "to": "Maria Katalina Perez", "value": 3}, {"from": "RBC", "to": "Zohra Dewji", "value": 45}, {"from": "PwC", "to": "Sydney Gemin", "value": 17}, {"from": "RBC", "to": "Bradley Henwood", "value": 45}, {"from": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "to": "Sue Hutton", "value": 2}, {"from": "RBC", "to": "Andrea Young", "value": 45}, {"from": "RBC", "to": "Bryanna Neuwald", "value": 45}, {"from": "RBC", "to": "Husam Al Dakhil, PFP\u00ae", "value": 45}, {"from": "RBC", "to": "Mourad Abdelmonem", "value": 45}, {"from": "RBC Direct Investing", "to": "Mervyn Adams", "value": 2}, {"from": "CBRE", "to": "Lauren King", "value": 2}, {"from": "United Way East Ontario - Centraide de l\u0027Est de l\u0027Ontario", "to": "Mark Belanger", "value": 2}, {"from": "Bell", "to": "Parag Dey", "value": 3}, {"from": "RBC", "to": "Keren Yu", "value": 45}, {"from": "RBC", "to": "Alison Gibbins", "value": 45}, {"from": "RBC", "to": "Mike Ronchka", "value": 45}, {"from": "RBC", "to": "Emily Wright", "value": 45}, {"from": "RBC Direct Investing", "to": "Hania Aymen", "value": 2}, {"from": "RBC", "to": "Kiara Ventulieri", "value": 45}, {"from": "KPMG Canada", "to": "Fr\u00e9d\u00e9ric LeBlond, CPA, CFE", "value": 3}, {"from": "RBC", "to": "Neil Kapoor", "value": 45}, {"from": "RBC", "to": "Breanna Ryan", "value": 45}, {"from": "McGill University", "to": "Phil Cimento", "value": 3}, {"from": "RBC", "to": "Nicola Christie", "value": 45}, {"from": "RBC", "to": "Frederick Hood", "value": 45}, {"from": "RBC", "to": "Melody Zhao", "value": 45}, {"from": "RBC", "to": "Theodora Giovannelli", "value": 45}, {"from": "RBC Capital Markets", "to": "Adele Berrizbeitia", "value": 7}, {"from": "RBC", "to": "Christopher Cole", "value": 45}, {"from": "Bell", "to": "Alexandra Lee", "value": 3}, {"from": "RBC", "to": "Ifeoma Udo", "value": 45}, {"from": "RBC Capital Markets", "to": "Jaea Zuo", "value": 7}, {"from": "RBC Capital Markets", "to": "Sana Saeed", "value": 7}, {"from": "RBC Capital Markets", "to": "Mia Miscevic", "value": 7}, {"from": "RBC", "to": "Heidi Wildeman", "value": 45}, {"from": "RBC", "to": "Thomas Golka", "value": 45}, {"from": "RBC Capital Markets", "to": "Reem Araia", "value": 7}, {"from": "RBC", "to": "Rehana Ciriani", "value": 45}, {"from": "RBC", "to": "Karen Walker", "value": 45}, {"from": "Deloitte", "to": "Alicia Chan, CSM", "value": 6}, {"from": "RBC", "to": "Ruba Marar, MSc", "value": 45}, {"from": "RBC", "to": "Priya Patel, PMP", "value": 45}, {"from": "Deloitte", "to": "\ud83d\udca1Jonathan Zhu", "value": 6}, {"from": "RBC", "to": "Elliot Barry", "value": 45}, {"from": "CBRE", "to": "Korey Sheppard-Greene", "value": 2}, {"from": "Philips", "to": "Joanne Pe\u00f1a", "value": 5}, {"from": "RBC", "to": "Gabrielle Davis", "value": 45}, {"from": "Iridian Spectral Technologies", "to": "Monica Coyne", "value": 5}, {"from": "RBC", "to": "Natacha Lemay-Reaume", "value": 45}, {"from": "Carleton University", "to": "Hamid Moradi", "value": 2}, {"from": "Iridian Spectral Technologies", "to": "Jason Palidwar", "value": 5}, {"from": "Iridian Spectral Technologies", "to": "Robert Woods", "value": 5}, {"from": "Iridian Spectral Technologies", "to": "Helen Slegr, M.A.Sc., P.Eng.", "value": 5}, {"from": "IBM", "to": "Annie Lu", "value": 3}, {"from": "Fullscript", "to": "Jill Andrews", "value": 3}, {"from": "Fullscript", "to": "Jamie Burns", "value": 3}, {"from": "Fullscript", "to": "Amanda Cummings", "value": 3}, {"from": "IBM", "to": "Stephanie Duguay", "value": 3}, {"from": "Anheuser-Busch InBev", "to": "Devin Hastie", "value": 2}, {"from": "Anheuser-Busch InBev", "to": "John Shipp (He/Him)", "value": 2}, {"from": "KPMG Canada", "to": "Arlo Dempsey", "value": 3}, {"from": "Self-Employed", "to": "Laetitia Duler", "value": 2}, {"from": "Bell", "to": "Fahad Alam Khan", "value": 3}, {"from": "Canadian Tire Corporation", "to": "Swithin Aby", "value": 5}, {"from": "Philips", "to": "Brian Butler", "value": 5}, {"from": "Canadian Tire Corporation", "to": "Kevin Ha", "value": 5}, {"from": "Philips", "to": "Chris Balugay", "value": 5}, {"from": "Philips", "to": "Juan Tosto", "value": 5}, {"from": "Google", "to": "Christopher Dittmer", "value": 4}, {"from": "Philips", "to": "Teymour Seif-El-Nasr", "value": 5}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "Anton Ritzu", "value": 3}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "Guillaume Lorget", "value": 3}, {"from": "Google", "to": "Alex Eldemir", "value": 4}, {"from": "Accenture", "to": "Eve Alezraa", "value": 2}, {"from": "Lyc\u00e9e Fran\u00e7ais de San Francisco", "to": "William Desmole", "value": 3}, {"from": "Self-Employed", "to": "Florence Jaffry Orsini", "value": 2}, {"from": "Deloitte", "to": "Rachel Wills, CPA", "value": 6}, {"from": "Deloitte", "to": "Laurence Cobo", "value": 6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 250
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
